@@ -49,7 +49,7 @@ class HasSeveralEvent(Rule):
     """Rule that match a person with several individual unique event"""
 
     name        = _('People with several individual unique event')
-    description = _("Matches people with several ndividual unique event")
+    description = _("Matches people with several individual unique event")
     category    = _('Person filters')
     
     def apply(self,db,person):

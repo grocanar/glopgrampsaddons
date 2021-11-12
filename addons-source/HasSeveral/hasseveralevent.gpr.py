@@ -24,9 +24,9 @@ Filter rule to match source with a particular value.
 """
 register(RULE,
   id    = 'HasSeveralEvent',
-  name  = _("Source matching parameters"),
-  description = _("Matches People with several birth or several Death"),
-  version = '0.0.2',
+  name  = _("HasSeveralUniqueEvent"),
+  description = _("Matches people with several individual unique event"),
+  version = '0.0.3',
   authors = ["Eric Doutreleau"],
   authors_email = ["eric@doutreleau.fr"],
   gramps_target_version = '5.1',
