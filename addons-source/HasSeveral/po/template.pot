@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-12 10:42+0100\n"
+"POT-Creation-Date: 2021-11-12 10:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,19 +18,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: HasSeveral/hasseveralevent.gpr.py:27
-msgid "Source matching parameters"
+msgid "HasSeveralUniqueEvent"
 msgstr ""
 
-#: HasSeveral/hasseveralevent.gpr.py:28
-msgid "Matches People with several birth or several Death"
+#: HasSeveral/hasseveralevent.gpr.py:28 HasSeveral/hasseveralevent.py:52
+msgid "Matches people with several individual unique event"
 msgstr ""
 
 #: HasSeveral/hasseveralevent.py:51
 msgid "People with several individual unique event"
-msgstr ""
-
-#: HasSeveral/hasseveralevent.py:52
-msgid "Matches people with several ndividual unique event"
 msgstr ""
 
 #: HasSeveral/hasseveralevent.py:53
