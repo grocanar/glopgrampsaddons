@@ -48,7 +48,7 @@ msgstr "Inclure les média"
 
 #: ../GedcomforGeneanet.py:324
 msgid "Include depot in sources"
-msgstr "Inclure les dépots dans les sources"
+msgstr "Inclure les dépôts dans les sources"
 
 #: ../GedcomforGeneanet.py:358
 #, python-format
