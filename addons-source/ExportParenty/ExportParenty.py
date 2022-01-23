@@ -72,9 +72,9 @@ class ParentyOptionBox(WriterOptionBox):
         WriterOptionBox.__init__(self, person, dbstate, uistate, track=track,
                                  window=window)
         ## TODO: add place filter selection
-        self.star = 0
+        self.star = 1
         self.star_check = None
-        self.adn = 1
+        self.adn = 0
         self.adn_check = None
 
     def get_option_box(self):
@@ -149,7 +149,7 @@ class ParentyWriter(object):
             self.user.notify_error(_("Could not create %s") % self.filename)
             return False
 
-        self.attr = ("MyHeritage : Segments partagés","MyHeritage : Segment le plus long","MyHeritage : ADN partagé","Geneanet : Segment le plus long","Geneanet : Segments partagés","Geneanet : ADN partagé","Gedmatch : Segments partagés","Gedmatch : Segment le plus long","Gedmatch : ADN partagé")
+        self.attr = ("MyHeritage : Segments partagés","MyHeritage : Segment le plus long","MyHeritage : ADN partagé","Geneanet : Segment le plus long","Geneanet : Segments partagés","Geneanet : ADN partagé","Gedmatch : Segments partagés","Gedmatch : Segment le plus long","Gedmatch : ADN partagé","FTDNA : Segment le plus long","FTDNA : ADN partagé")
         RES=defaultdict(lambda : defaultdict(str))
         self.sdb = SimpleAccess(self.database)
         star_nbr = 0
@@ -180,6 +180,8 @@ class ParentyWriter(object):
                     msg = p1 + str(format(parenty, '.10f'))
                     if parenty  > 0.0:
                         self.STAR[p1] = parenty
+                        self.LEN[p1]=numlinks
+                        self.REL[p1]=min_rel
                 if self.adn:
                     self.PARENTY[p1]=parenty
                     self.REL[p1]=min_rel
@@ -199,10 +201,10 @@ class ParentyWriter(object):
             #    LOG.debug("parente%s P1 %s" % (msg,p1))
         if self.star:
             sortedDict = sorted(self.STAR.items(), reverse=True, key=lambda kv: kv[1])
-            msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>% parenté</TH></TR>"
+            msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TR>"
             self.writeln(msg)
             for key, value in sortedDict:
-                msg = "<TR><TD>" + key + "</TD><TD>" + str(format(value, '.10f')) + "</TD></TR>"
+                msg = "<TR><TD>" + key + "</TD><TD>" + str(format(value, '.10f')) +  "</TD><TD>" +str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) +"</TD></TR>"
                 self.writeln(msg)
 
             msg = "</TABLE>"
@@ -235,7 +237,7 @@ class ParentyWriter(object):
         if not relations or relations[0][0] == -1:
             parenty = 0
             LOG.debug("pas de parente" )
-            return parenty
+            return ( parenty , "")
         pct = 0.0
         num=0
         mindist=0
