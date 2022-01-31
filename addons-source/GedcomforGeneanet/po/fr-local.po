@@ -81,7 +81,7 @@ msgid "Very Low Quality Source"
 msgstr "Source de qualité trèsbasse"
 
 msgid "Geneanet name beautify"
-msgstr "Embelissement des noms alternatifs"
+msgstr "Embellissement des noms alternatifs"
 
 msgid "Implementation of anychar"
 msgstr "Support de la norme Gedcom 5.5 anychar"
