@@ -185,7 +185,7 @@ class PlaceDisplayGeneanet(place.PlaceDisplay):
         populated_place = ""
         level = 0
         for index, item in enumerate(places):
-            if int(item[1]) in [PlaceType.NUMBER, PlaceType.BUILDING , PlaceType.FARM , PlaceType.HAMLET, PlaceType.NEIGHBORHOOD , PlaceType.STREET , PlaceType.PARISH , PlaceType.LOCALITY , PlaceType.BOROUGH, PlaceType.UNKNOWN]:
+            if int(item[1]) in [PlaceType.NUMBER, PlaceType.BUILDING , PlaceType.FARM , PlaceType.HAMLET, PlaceType.NEIGHBORHOOD , PlaceType.STREET , PlaceType.PARISH , PlaceType.LOCALITY , PlaceType.BOROUGH, PlaceType.UNKNOWN , PlaceType.CUSTOM]:
                 level = 1
                 if populated_place == "":
                     populated_place = "[ " + item[0]
