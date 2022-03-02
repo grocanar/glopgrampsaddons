@@ -85,8 +85,15 @@ class ParentyReport(Report):
 
     def write_report(self):
         nametag = self.nametag
+        RES=defaultdict(lambda : defaultdict(str))
         LOG.debug("TAILLE %s\n" % nametag)
         star_nbr = 0
+        self.NAME= defaultdict(str)
+        self.PARENTY= defaultdict(str)
+        self.REL= defaultdict(str)
+        self.LEN= defaultdict(str)
+        self.valeur= defaultdict(lambda : defaultdict(int))
+        self.sdb = SimpleAccess(self.database)
         LOG.debug("DEBUT WRITE" )
         self.doc.start_paragraph('Eclair-Report')
         progress = ProgressMeter(_('People parcours'), can_cancel=True)
@@ -94,6 +101,7 @@ class ParentyReport(Report):
         msg = "NAMETAG " + nametag  + " #\n"
         self.doc.write_text(msg)
         progress.set_pass(nametag,length)
+        p2 = self.home_person.get_primary_name().get_name()
         for person in self.database.iter_people():
             self.person = person
             progress.step()
@@ -106,6 +114,7 @@ class ParentyReport(Report):
                     tname = tag.get_name()
                     if tname == nametag:
                         state= 1
+                        p1 = self.person.get_primary_name().get_name()
                         LOG.debug("TAG trouve %s" % tname)
                         common, self.msg_list = self.rel_class.get_relationship_distance_new(
                               self.database, self.person, self.home_person,
@@ -113,19 +122,55 @@ class ParentyReport(Report):
                         all_dist=True,
                         only_birth=False)
                         (parenty,rel) = self.get_parenty(common)
+                        numlinks=len(common)
                         if parenty > 0.0:
-                            p1 = self.person.get_primary_name().get_name()
                             attributes = self.person.get_attribute_list()
                             attributes.sort(key=lambda a: a.get_type().value)
                             result=""
-                            for attribute in attributes:
-                                attr_type = attribute.get_type()
-                                attr_val  = attribute.get_value()
-                                if str(attr_type) in self.attr:
-                                    result = result + str(attr_type) + " # " + str(attr_val) + " # "
+                            self.PARENTY[p1]=parenty
+                            self.LEN[p1]=numlinks
+                            self.REL[p1]=rel
+                            if nametag == 'ADN':
+                                for attribute in attributes:
+                                    attr_type = attribute.get_type()
+                                    attr_val  = attribute.get_value()
+                                    if str(attr_type) in self.attr:
+                                        result = result + str(attr_type) + " # " + str(attr_val) + " # "
+                                        RES[p1][str(attr_type)]=attr_val
                             msg = p1 + "  " + result + " parenté : " +  str(format(parenty, '.10f')) +" " + str(rel) + "\n"
                             LOG.debug("parente%s P1 %s" % (msg,p1))
-                            self.doc.write_text(msg)
+        if nametag == 'star' or nametag == "cousingen":
+            sortedDict = sorted(self.PARENTY.items(), reverse=True, key=lambda kv: kv[1])
+            msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TR>"
+            self.doc.write_text(msg)
+            for key, value in sortedDict:
+                msg = "<TR><TD>" + key + "</TD><TD>" + str(format(value, '.10f')) +  "</TD><TD>" +str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) +"</TD></TR>"
+                self.doc.write_text(msg)
+
+            msg = "</TABLE>"
+            self.doc.write_text(msg)
+        if nametag == 'ADN':
+            msg = "<TABLE class=\"tabwiki\"><TR><TH>Anom</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH>"
+            LOG.debug("longueyr attribut %d" % len(self.attr))
+            for att in self.attr:
+                msg = msg + "<TH>" + att + "</TH>"
+                LOG.debug("parente%s P1 %s" % (msg,p1))
+            msg = msg + "</tr>"
+            self.doc.write_text(msg)
+#            LOG.debug("longueyr attribut %d" % len(self.attr))
+            num = 1
+            sortedDict = sorted(self.PARENTY.items(), reverse=True, key=lambda kv: kv[1])
+            for key, value in sortedDict:
+                msg = "<TR><TD>" + str(num) + "</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) + "</TD>"
+                LOG.debug("NUM %d Nom %s REL %s" % (num,key,str(self.REL[key])))
+                num = num + 1
+                for attr in self.attr:
+                    msg = msg + "<TD>" + str(RES[key][attr]) + "</TD>"
+                msg = msg + "</TR>"
+                self.doc.write_text(msg)
+            msg = "</TABLE>"
+            self.doc.write_text(msg)
+
         LOG.debug("FIN WRITE" )
         progress.close()
         self.doc.end_paragraph()
