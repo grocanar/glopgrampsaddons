@@ -92,14 +92,14 @@ class ParentyReport(Report):
         self.PARENTY= defaultdict(str)
         self.REL= defaultdict(str)
         self.LEN= defaultdict(str)
+        self.SITEGEN= defaultdict(str)
+        self.stringgen='site geneanet'
         self.valeur= defaultdict(lambda : defaultdict(int))
         self.sdb = SimpleAccess(self.database)
         LOG.debug("DEBUT WRITE" )
         self.doc.start_paragraph('Eclair-Report')
         progress = ProgressMeter(_('People parcours'), can_cancel=True)
         length = self.database.get_number_of_people()
-        msg = "NAMETAG " + nametag  + " #\n"
-        self.doc.write_text(msg)
         progress.set_pass(nametag,length)
         p2 = self.home_person.get_primary_name().get_name()
         for person in self.database.iter_people():
@@ -137,14 +137,44 @@ class ParentyReport(Report):
                                     if str(attr_type) in self.attr:
                                         result = result + str(attr_type) + " # " + str(attr_val) + " # "
                                         RES[p1][str(attr_type)]=attr_val
+                            if nametag == 'cousingen':
+                                for attribute in attributes:
+                                    attr_type = attribute.get_type()
+                                    attr_val  = attribute.get_value()
+                                    if str(attr_type) == self.stringgen:
+                                        RES[p1][self.stringgen]=attr_val
                             msg = p1 + "  " + result + " parenté : " +  str(format(parenty, '.10f')) +" " + str(rel) + "\n"
                             LOG.debug("parente%s P1 %s" % (msg,p1))
-        if nametag == 'star' or nametag == "cousingen":
+        num=len(self.PARENTY.keys())
+        msg =  nametag  + " Occurences <BR><BR>\n"
+        self.doc.write_text(msg)
+        if nametag == "cousingen":
+            msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH>"
+            msg = msg + "<TH>" + self.stringgen + "</TH>"
+            msg = msg + "</tr>"
+            self.doc.write_text(msg)
+#            LOG.debug("longueyr attribut %d" % len(self.attr))
+            num = 1
+            sortedDict = sorted(self.PARENTY.items(), reverse=True, key=lambda kv: kv[1])
+            for key, value in sortedDict:
+                msg = "<TR><TD>" + key + "</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) + "</TD>"
+                LOG.debug("NUM %d Nom %s REL %s" % (num,key,str(self.REL[key])))
+                num = num + 1
+                if RES[key][self.stringgen]:
+                    url = str(RES[key][self.stringgen])
+                    msg = msg + "<TD> <A HREF=\"" + url + "\">" + url + "</A></TD>"
+                else:
+                    msg = msg + "<TD> </TD>"
+                msg = msg + "</TR>\n"
+                self.doc.write_text(msg)
+            msg = "</TABLE>"
+            self.doc.write_text(msg)
+        if nametag == 'star':
             sortedDict = sorted(self.PARENTY.items(), reverse=True, key=lambda kv: kv[1])
             msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TR>"
             self.doc.write_text(msg)
             for key, value in sortedDict:
-                msg = "<TR><TD>" + key + "</TD><TD>" + str(format(value, '.10f')) +  "</TD><TD>" +str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) +"</TD></TR>"
+                msg = "<TR><TD>" + key + "</TD><TD>" + str(format(value, '.10f')) +  "</TD><TD>" +str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) +"</TD></TR>\n"
                 self.doc.write_text(msg)
 
             msg = "</TABLE>"
