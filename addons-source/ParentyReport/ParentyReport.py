@@ -33,7 +33,7 @@ import logging
 #
 #------------------------------------------------------------------------
 from gramps.gen.simple import SimpleAccess
-from gramps.gen.plug.menu import FilterOption, PlaceListOption, EnumeratedListOption, \
+from gramps.gen.plug.menu import FilterOption, PlaceListOption, EnumeratedListOption, NumberOption,\
                           BooleanOption,BooleanListOption
 from gramps.gen.plug.report import Report
 from gramps.gen.plug.report import MenuReportOptions
@@ -48,6 +48,7 @@ from gramps.gen.lib import PlaceType
 from gramps.gen.display.name import displayer as _nd
 from gramps.gen.display.place import displayer as _pd
 from gramps.gen.relationship import get_relationship_calculator
+from gramps.gen.config import config
 
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 try:
@@ -67,6 +68,12 @@ class ParentyReport(Report):
         self.database = database
         self.home_person = self.database.get_default_person()
         self.nametag = menu.get_option_by_name('tag_option').get_value()
+        self.olddepth=config.get('behavior.generation-depth')
+        if not self.olddepth:
+            self.olddepth=15
+        self.max_generations = menu.get_option_by_name('maxgen').get_value()
+        config.set('behavior.generation-depth',self.max_generations)
+        config.save
         if not self.home_person :
             self.sdoc.paragraph(_("Home person not set."))
             return
@@ -94,6 +101,8 @@ class ParentyReport(Report):
         self.LEN= defaultdict(str)
         self.SITEGEN= defaultdict(str)
         self.stringgen='site geneanet'
+        self.starurl='star_url'
+        self.geneaneturl='geneanet_url'
         self.valeur= defaultdict(lambda : defaultdict(int))
         self.sdb = SimpleAccess(self.database)
         LOG.debug("DEBUT WRITE" )
@@ -143,38 +152,52 @@ class ParentyReport(Report):
                                     attr_val  = attribute.get_value()
                                     if str(attr_type) == self.stringgen:
                                         RES[p1][self.stringgen]=attr_val
+                            if nametag == 'star':
+                                for attribute in attributes:
+                                    attr_type = attribute.get_type()
+                                    attr_val  = attribute.get_value()
+                                    if str(attr_type) == self.starurl:
+                                        RES[p1][self.starurl]=attr_val
+                                    if str(attr_type) == self.geneaneturl:
+                                        RES[p1][self.geneaneturl]=attr_val
+                            msg = p1 + "  " + result + " parenté : " +  str(format(parenty, '.10f')) +" " + str(rel) + "\n"
                             msg = p1 + "  " + result + " parenté : " +  str(format(parenty, '.10f')) +" " + str(rel) + "\n"
                             LOG.debug("parente%s P1 %s" % (msg,p1))
         num=len(self.PARENTY.keys())
-        msg =  nametag  + " Occurences <BR><BR>\n"
+        msg =  str(num)  + " Occurences <BR><BR>\n"
         self.doc.write_text(msg)
         if nametag == "cousingen":
             msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH>"
-            msg = msg + "<TH>" + self.stringgen + "</TH>"
             msg = msg + "</tr>"
             self.doc.write_text(msg)
 #            LOG.debug("longueyr attribut %d" % len(self.attr))
             num = 1
             sortedDict = sorted(self.PARENTY.items(), reverse=True, key=lambda kv: kv[1])
             for key, value in sortedDict:
-                msg = "<TR><TD>" + key + "</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) + "</TD>"
-                LOG.debug("NUM %d Nom %s REL %s" % (num,key,str(self.REL[key])))
-                num = num + 1
                 if RES[key][self.stringgen]:
                     url = str(RES[key][self.stringgen])
-                    msg = msg + "<TD> <A HREF=\"" + url + "\">" + url + "</A></TD>"
+                    msg = "<TR><TD> <A HREF=\"" + url + "\">" + key + "</A></TD>"
                 else:
-                    msg = msg + "<TD> </TD>"
+                    msg = "<TR><TD>" + key + "</TD>"
+                msg = msg + "<TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) + "</TD>"
+                LOG.debug("NUM %d Nom %s REL %s" % (num,key,str(self.REL[key])))
+                num = num + 1
                 msg = msg + "</TR>\n"
                 self.doc.write_text(msg)
             msg = "</TABLE>"
             self.doc.write_text(msg)
         if nametag == 'star':
             sortedDict = sorted(self.PARENTY.items(), reverse=True, key=lambda kv: kv[1])
-            msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TR>"
+            msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>Lien</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TR>"
             self.doc.write_text(msg)
             for key, value in sortedDict:
-                msg = "<TR><TD>" + key + "</TD><TD>" + str(format(value, '.10f')) +  "</TD><TD>" +str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) +"</TD></TR>\n"
+                msg = "<TR>"
+                if RES[key][self.starurl]:
+                    url = str(RES[key][self.starurl])
+                    msg = msg + "<TD> <A HREF=\"" + url + "\">" + key + "</A></TD>"
+                else:
+                    msg = msg + "<TD>" + key +" </TD>"
+                msg = msg + "<TD>" + str(format(value, '.10f')) +  "</TD><TD>" +str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) +"</TD></TR>\n"
                 self.doc.write_text(msg)
 
             msg = "</TABLE>"
@@ -204,6 +227,9 @@ class ParentyReport(Report):
         LOG.debug("FIN WRITE" )
         progress.close()
         self.doc.end_paragraph()
+        config.set('behavior.generation-depth',self.olddepth)
+        config.save
+
 
     def get_parenty(self, relations):
     
@@ -258,7 +284,15 @@ class ParentyOptions(MenuReportOptions):
         tag_option = EnumeratedListOption('Tag', 'Tag')
         tag_option.set_items([('star', 'star') , ('cousingen', 'cousingen') , ('ADN', 'ADN')])
         tag_option.set_help("Type de rapport")
+        olddepth=config.get('behavior.generation-depth')
+        if not olddepth:
+            olddepth=15
         menu.add_option(category_name, "tag_option", tag_option)
+        maxgen = NumberOption(_("Generations"), olddepth, 1, 100)
+        maxgen.set_help(
+            _("The number of generations to use to compute parenty"))
+        menu.add_option(category_name, "maxgen", maxgen)
+
 
 
     def make_default_style(self, default_style):
