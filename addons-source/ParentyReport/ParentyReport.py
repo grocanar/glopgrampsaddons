@@ -44,7 +44,7 @@ from gramps.gen.plug.docgen import (IndexMark, FontStyle, ParagraphStyle, TableS
 from gramps.gen.proxy import PrivateProxyDb, LivingProxyDb
 import gramps.gen.datehandler
 from gramps.gen.sort import Sort
-from gramps.gen.lib import PlaceType
+from gramps.gen.lib import PlaceType,EventRoleType,EventType
 from gramps.gen.display.name import displayer as _nd
 from gramps.gen.display.place import displayer as _pd
 from gramps.gen.relationship import get_relationship_calculator
@@ -97,16 +97,19 @@ class ParentyReport(Report):
         star_nbr = 0
         self.NAME= defaultdict(str)
         self.PARENTY= defaultdict(str)
+        self.TIMS= defaultdict(str)
         self.REL= defaultdict(str)
         self.LEN= defaultdict(str)
+        self.REC= defaultdict(str)
         self.SITEGEN= defaultdict(str)
         self.stringgen='site geneanet'
         self.starurl='star_url'
         self.geneaneturl='geneanet_url'
         self.valeur= defaultdict(lambda : defaultdict(int))
         self.sdb = SimpleAccess(self.database)
+        parentypers=0
         LOG.debug("DEBUT WRITE" )
-        self.doc.start_paragraph('Eclair-Report')
+        self.doc.start_paragraph('Parenty-Report')
         progress = ProgressMeter(_('People parcours'), can_cancel=True)
         length = self.database.get_number_of_people()
         progress.set_pass(nametag,length)
@@ -123,7 +126,10 @@ class ParentyReport(Report):
                     tname = tag.get_name()
                     if tname == nametag:
                         state= 1
+                        clas=""
                         p1 = self.person.get_primary_name().get_name()
+                        phandle = self.person.handle
+                        self.REC[phandle]=1
                         LOG.debug("TAG trouve %s" % tname)
                         common, self.msg_list = self.rel_class.get_relationship_distance_new(
                               self.database, self.person, self.home_person,
@@ -132,39 +138,79 @@ class ParentyReport(Report):
                         only_birth=False)
                         (parenty,rel) = self.get_parenty(common)
                         numlinks=len(common)
+                        if nametag == 'recploug1946':
+                            for event_ref in person.get_event_ref_list():
+                                event = self.database.get_event_from_handle(event_ref.ref)
+                                if not event:
+                                    continue
+                                if event.get_type() == EventType.CENSUS:
+                                    for tag_handle in event.get_tag_list():
+                                        tag = self.database.get_tag_from_handle(tag_handle)
+                                        name = tag.get_name()
+                                        if name == 'recploug1946':
+                                            result=""
+                                            timst=event.gramps_id
+                                            timst=timst.replace('E','')
+                                            attrs = event_ref.get_attribute_list()
+                                            if len(attrs):
+                                                for attribute in attrs:
+                                                    attr_type = attribute.get_type()
+                                                    attr_val  = attribute.get_value()
+                                                    if attr_type == "Rang":
+                                                        clas=str(timst) + "." + str (attr_val)
+                                                        self.TIMS[phandle]=float(clas)
+                                                    else:
+                                                        if result:
+                                                            result = result + "</TD><TD>" + str(attr_val)
+                                                        else:
+                                                            result = "<TD>" + str(attr_val)
+                                                result= result + "</TD>"
+                            RES[phandle]['recploug1946']=result
                         if parenty > 0.0:
+                            parentypers=parentypers + 1
                             attributes = self.person.get_attribute_list()
                             attributes.sort(key=lambda a: a.get_type().value)
                             result=""
-                            self.PARENTY[p1]=parenty
-                            self.LEN[p1]=numlinks
-                            self.REL[p1]=rel
+                            self.PARENTY[phandle]=parenty
+                            self.LEN[phandle]=numlinks
+                            self.REL[phandle]=rel
                             if nametag == 'ADN':
                                 for attribute in attributes:
                                     attr_type = attribute.get_type()
                                     attr_val  = attribute.get_value()
                                     if str(attr_type) in self.attr:
                                         result = result + str(attr_type) + " # " + str(attr_val) + " # "
-                                        RES[p1][str(attr_type)]=attr_val
+                                        RES[phandle][str(attr_type)]=attr_val
                             if nametag == 'cousingen':
                                 for attribute in attributes:
                                     attr_type = attribute.get_type()
                                     attr_val  = attribute.get_value()
                                     if str(attr_type) == self.stringgen:
-                                        RES[p1][self.stringgen]=attr_val
+                                        RES[phandle][self.stringgen]=attr_val
                             if nametag == 'star':
                                 for attribute in attributes:
                                     attr_type = attribute.get_type()
                                     attr_val  = attribute.get_value()
                                     if str(attr_type) == self.starurl:
-                                        RES[p1][self.starurl]=attr_val
+                                        RES[phandle][self.starurl]=attr_val
                                     if str(attr_type) == self.geneaneturl:
-                                        RES[p1][self.geneaneturl]=attr_val
-                            msg = p1 + "  " + result + " parenté : " +  str(format(parenty, '.10f')) +" " + str(rel) + "\n"
-                            msg = p1 + "  " + result + " parenté : " +  str(format(parenty, '.10f')) +" " + str(rel) + "\n"
+                                        RES[phandle][self.geneaneturl]=attr_val
+                            msg = p1 + "  " + result + " parenté : " +  str(format(parenty, '.10f')) +" " + str(rel) + " CLAS " + clas +"\n"
                             LOG.debug("parente%s P1 %s" % (msg,p1))
-        num=len(self.PARENTY.keys())
-        msg =  str(num)  + " Occurences <BR><BR>\n"
+                        else:
+                            self.PARENTY[phandle]=0
+                            self.LEN[phandle]=0
+                            self.REL[phandle]=""
+        num=parentypers
+        num2=len(self.TIMS.keys())
+        msg = "= Recensement 1946=\n<BR><BR>"
+        self.doc.write_text(msg)
+        msg = "Cette page donne le recensement pour la commune de Plouguerneau en 1946 et le pourcentage de parenté avec moi meme\n<BR>\n"
+        self.doc.write_text(msg)
+        msg =  "<BR>Nombre total de personnes dans le recensement : " + str(num2)  + "<BR>Nombre total de personnes apparentés : " + str(num)  + "<BR><BR>\n"
+        self.doc.write_text(msg)
+        pct = 100.0 * num / num2
+        msg = "</b>" + str(format(pct, '.2f')) + "%</b> de personnes apparentées<BR><BR><BR>\n"
         self.doc.write_text(msg)
         if nametag == "cousingen":
             msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH>"
@@ -176,11 +222,36 @@ class ParentyReport(Report):
             for key, value in sortedDict:
                 if RES[key][self.stringgen]:
                     url = str(RES[key][self.stringgen])
-                    msg = "<TR><TD> <A HREF=\"" + url + "\">" + key + "</A></TD>"
+                    person = self.database.get_person_from_handle(key)
+                    p1 = person.get_primary_name().get_name()
+                    msg = "<TR><TD> <A HREF=\"" + url + "\">" + p1 + "</A></TD>"
                 else:
-                    msg = "<TR><TD>" + key + "</TD>"
+                    person = self.database.get_person_from_handle(key)
+                    p1 = person.get_primary_name().get_name()
+                    msg = "<TR><TD>" + p1 + "</TD>"
                 msg = msg + "<TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) + "</TD>"
-                LOG.debug("NUM %d Nom %s REL %s" % (num,key,str(self.REL[key])))
+                LOG.debug("NUM %d Nom %s REL %s" % (num,p1,str(self.REL[key])))
+                num = num + 1
+                msg = msg + "</TR>\n"
+                self.doc.write_text(msg)
+            msg = "</TABLE>"
+            self.doc.write_text(msg)
+        if nametag == "recploug1946":
+            msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>Nom Recensement</TH><TH>Adresse</TH><TH>Relation</TH><TH>Date Naissance</TH><TH>Nationalité</TH><TH>Profession</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH>"
+            msg = msg + "</tr>"
+            self.doc.write_text(msg)
+            num = 1
+            sortedDict = sorted(self.TIMS.items(), reverse=False,key=lambda kv: float(kv[1]))
+            print(sortedDict)
+            for k,val in sortedDict:
+                if k not in self.PARENTY:
+                    value = 0
+                else:
+                    value=self.PARENTY[k]
+                person = self.database.get_person_from_handle(k)
+                p1 = person.get_primary_name().get_name()
+                msg = "<TR><TD>" + p1 + RES[k]['recploug1946'] + "<TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>"
+                LOG.debug("NUM %d Nom %s REL %s" % (num,p1,str(self.REL[k])))
                 num = num + 1
                 msg = msg + "</TR>\n"
                 self.doc.write_text(msg)
@@ -194,9 +265,13 @@ class ParentyReport(Report):
                 msg = "<TR>"
                 if RES[key][self.starurl]:
                     url = str(RES[key][self.starurl])
-                    msg = msg + "<TD> <A HREF=\"" + url + "\">" + key + "</A></TD>"
+                    person = self.database.get_person_from_handle(key)
+                    p1 = person.get_primary_name().get_name()
+                    msg = msg + "<TD> <A HREF=\"" + url + "\">" + p1 + "</A></TD>"
                 else:
-                    msg = msg + "<TD>" + key +" </TD>"
+                    person = self.database.get_person_from_handle(key)
+                    p1 = person.get_primary_name().get_name()
+                    msg = msg + "<TD>" + p1 +" </TD>"
                 msg = msg + "<TD>" + str(format(value, '.10f')) +  "</TD><TD>" +str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) +"</TD></TR>\n"
                 self.doc.write_text(msg)
 
@@ -214,8 +289,9 @@ class ParentyReport(Report):
             num = 1
             sortedDict = sorted(self.PARENTY.items(), reverse=True, key=lambda kv: kv[1])
             for key, value in sortedDict:
+                p1 = key.get_primary_name().get_name()
                 msg = "<TR><TD>" + str(num) + "</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) + "</TD>"
-                LOG.debug("NUM %d Nom %s REL %s" % (num,key,str(self.REL[key])))
+                LOG.debug("NUM %d Nom %s REL %s" % (num,p1,str(self.REL[key])))
                 num = num + 1
                 for attr in self.attr:
                     msg = msg + "<TD>" + str(RES[key][attr]) + "</TD>"
@@ -282,7 +358,7 @@ class ParentyOptions(MenuReportOptions):
         """
         category_name = _("Report Options")
         tag_option = EnumeratedListOption('Tag', 'Tag')
-        tag_option.set_items([('star', 'star') , ('cousingen', 'cousingen') , ('ADN', 'ADN')])
+        tag_option.set_items([('star', 'star') , ('cousingen', 'cousingen') , ('ADN', 'ADN') , ('recploug1946', 'recploug1946')])
         tag_option.set_help("Type de rapport")
         olddepth=config.get('behavior.generation-depth')
         if not olddepth:
@@ -305,7 +381,7 @@ class ParentyOptions(MenuReportOptions):
         para.set_top_margin(0.25)
         para.set_bottom_margin(0.25)
         para.set_description(_('The style used for the liste eclair.'))
-        default_style.add_paragraph_style("Eclair-Report", para)
+        default_style.add_paragraph_style("Parenty-Report", para)
 
         """
         Define the style used for the place title
@@ -318,4 +394,4 @@ class ParentyOptions(MenuReportOptions):
         para.set_top_margin(0.75)
         para.set_bottom_margin(0.25)
         para.set_description(_('The style used for place title.'))
-        default_style.add_paragraph_style("Eclair-ReportTitle", para)
+        default_style.add_paragraph_style("Parenty-ReportTitle", para)

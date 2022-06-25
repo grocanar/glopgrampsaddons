@@ -4,7 +4,7 @@ register(REPORT,
 	name=_("ParentyReport"),
 	description = _("Report for parenty based on a tag"),
 	status = STABLE, # not yet tested with python 3
-	version = '0.0.1',
+	version = '010.4',
 	fname="ParentyReport.py",
     authors = ["Eric Doutreleau"],
     authors_email = ["eric@doutreleau.fr"],
