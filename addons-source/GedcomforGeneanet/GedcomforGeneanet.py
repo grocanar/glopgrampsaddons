@@ -32,6 +32,7 @@ Extends GedcomWriter to include common non-compliant GEDCOM additions.
 import os
 import time
 import io
+import re
 
 #------------------------------------------------------------------------
 #
@@ -110,6 +111,7 @@ CONFIG.register("preferences.nameus" , False)
 CONFIG.register("preferences.anychar", True)
 CONFIG.register("preferences.citattr", True)
 CONFIG.register("preferences.inccensus", True)
+CONFIG.register("preferences.urlshort", True)
 CONFIG.register("preferences.altname", True)
 CONFIG.register("preferences.placegeneanet", True)
 CONFIG.register("preferences.ancplacename", True)
@@ -257,6 +259,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.anychar = option_box.anychar
             self.citattr = option_box.citattr
             self.inccensus = option_box.inccensus
+            self.urlshort = option_box.urlshort
             self.altname = option_box.altname
             self.placegeneanet = option_box.placegeneanet
             self.ancplacename = option_box.ancplacename
@@ -275,6 +278,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.anychar = 1
             self.citattr = 1
             self.inccensus = 1
+            self.urlshort = 1
             self.altname = 0
             self.placegeneanet = 0
             self.ancplacename = 0
@@ -394,7 +398,6 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                 text = _("Place name at the time") + " : "  + place_name
                 self._writeln(2, 'NOTE' , text )
         if self.altname:
-            LOG.debug("ALTNOTE")
             alt_names=self.display_alt_names(place)
             if len(alt_names) > 0:
                 text = _("Alternate name for place ") + '\n'.join(alt_names)
@@ -1155,9 +1158,21 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                     self._writeln(level + 2, "ROLE", srcattr.value)
                     break
         if self.citattr:
-            for srcattr in citation.get_attribute_list():
-                self._writeln(level + 1, "DATA" , str(srcattr.type)) 
-                self._writeln(level + 2, "TEXT", srcattr.value)
+            for citattr in citation.get_attribute_list():
+                if self.urlshort:
+                    url_pattern = "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
+                    link = re.match(url_pattern, citattr.value)
+                    if link:
+                        url=link.group()
+                        LOG.debug("deb write gedcom %s : %s  :" % ( str(url) , citattr.value ))
+                        text = "<A HREF=\"" + str(url) + "\" title=\"" + str(url) + "\">" + str(citattr.type) + "</A>"
+                        self._writeln(level + 1, "DATA" , text) 
+                    else:
+                        self._writeln(level + 1, "DATA", str(citattr.type))
+                        self._writeln(level + 2, "TEXT", citattr.value)
+                else:
+                    self._writeln(level + 1, "DATA", str(citattr.type))
+                    self._writeln(level + 2, "TEXT", citattr.value)
                 
     def write_gedcom_file(self, filename):
         """
@@ -1233,6 +1248,8 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.ancplacename_check = None
         self.inccensus = CONFIG.get("preferences.inccensus")
         self.inccensus_check = None
+        self.urlshort = CONFIG.get("preferences.urlshort")
+        self.urlshort_check = None
 
     def get_option_box(self):
         option_box = super(GedcomWriterOptionBox, self).get_option_box()
@@ -1249,6 +1266,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.anychar_check = Gtk.CheckButton(_("Implementation of anychar"))
         self.citattr_check = Gtk.CheckButton(_("Export of attributes of citation"))
         self.inccensus_check = Gtk.CheckButton(_("Include Census information for people"))
+        self.urlshort_check = Gtk.CheckButton(_("url short"))
         self.altname_check = Gtk.CheckButton(_("Display alternative name for place"))
         self.placegeneanet_check = Gtk.CheckButton(_("Geneanet format place"))
         self.ancplacename_check = Gtk.CheckButton(_("Display place name at the time"))
@@ -1265,6 +1283,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.anychar_check.set_active(CONFIG.get("preferences.anychar"))
         self.citattr_check.set_active(CONFIG.get("preferences.citattr"))
         self.inccensus_check.set_active(CONFIG.get("preferences.inccensus"))
+        self.urlshort_check.set_active(CONFIG.get("preferences.urlshort"))
         self.altname_check.set_active(CONFIG.get("preferences.altname"))
         self.placegeneanet_check.set_active(CONFIG.get("preferences.placegeneanet"))
         self.ancplacename_check.set_active(CONFIG.get("preferences.ancplacename"))
@@ -1282,6 +1301,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         option_box.pack_start(self.anychar_check, False, False, 0)
         option_box.pack_start(self.citattr_check, False, False, 0)
         option_box.pack_start(self.inccensus_check, False, False, 0)
+        option_box.pack_start(self.urlshort_check, False, False, 0)
         option_box.pack_start(self.altname_check, False, False, 0)
         option_box.pack_start(self.placegeneanet_check, False, False, 0)
         option_box.pack_start(self.ancplacename_check, False, False, 0)
@@ -1316,6 +1336,8 @@ class GedcomWriterOptionBox(WriterOptionBox):
             self.citattr = self.citattr_check.get_active()
         if self.inccensus_check:
             self.inccensus = self.inccensus_check.get_active()
+        if self.urlshort_check:
+            self.urlshort = self.urlshort_check.get_active()
         if self.altname_check:
             self.altname = self.altname_check.get_active()
         if self.placegeneanet_check:
@@ -1334,6 +1356,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         CONFIG.set("preferences.anychar" , self.anychar)
         CONFIG.set("preferences.citattr" , self.citattr)
         CONFIG.set("preferences.inccensus" , self.inccensus)
+        CONFIG.set("preferences.urlshort" , self.urlshort)
         CONFIG.set("preferences.altname" , self.altname)
         CONFIG.set("preferences.placegeneanet" , self.placegeneanet)
         CONFIG.set("preferences.ancplacename" , self.ancplacename)
