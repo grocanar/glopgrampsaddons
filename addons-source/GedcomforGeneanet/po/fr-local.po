@@ -119,3 +119,5 @@ msgstr "Afficher les noms alternatifs des lieux"
 msgid "Alternate name for place"
 msgstr "Noms alternatifs du lieu"
 
+msgid "Title instead of url for links"
+msgstr "Titre au lieu de l url pour les liens"

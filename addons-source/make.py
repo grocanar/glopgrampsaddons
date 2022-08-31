@@ -47,6 +47,7 @@ import glob
 import sys
 import os
 import tarfile
+from zipfile import ZipFile
 from xml.etree import ElementTree
 
 if "GRAMPSPATH" in os.environ:
@@ -194,6 +195,21 @@ def do_tar(inc_files):
         tar.add(inc_fil, filter=tar_filt)
     tar.close()
 
+def do_zip(inc_files):
+    """
+    An OS agnostic tar creation that uses only Python libs
+    inc_files is a list of filenames
+    """
+    if not inc_files:
+        print("***Nothing to build! %s" % addon)
+        exit()
+
+    mkdir(r("../addons/%(gramps_version)s/download"))
+    increment_target(glob.glob(r('''%(addon)s/*gpr.py''')))
+    with ZipFile(r("../addons/%(gramps_version)s/download/%(addon)s.zip"),'w') as zip:
+        # writing each file one by one
+        for inc_fil in inc_files:
+            zip.write(inc_fil)
 
 if command == "clean":
     if len(sys.argv) == 3:
@@ -391,6 +407,7 @@ elif command == "build":
                 # git doesn't remove empty folders when switching branchs
                 continue
             do_tar(files)
+            do_zip(files)
     else:
         for po in glob.glob(r('''%(addon)s/po/*.po''')):
             locale = os.path.basename(po[:-9])
@@ -407,6 +424,7 @@ elif command == "build":
         for patt in patts:
             files.extend(glob.glob(patt))
         do_tar(files)
+        do_zip(files)
 
 elif command == "as-needed":
     import tempfile
@@ -517,6 +535,7 @@ elif command == "as-needed":
         if todo:
             # Build it.
             do_tar(sfiles)
+            do_zip(sfiles)
             print("***Rebuilt:      %s" % addon)
 
         # Add addon to newly created listing (equivalent to 'listing all')

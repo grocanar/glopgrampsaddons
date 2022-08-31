@@ -1266,7 +1266,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.anychar_check = Gtk.CheckButton(_("Implementation of anychar"))
         self.citattr_check = Gtk.CheckButton(_("Export of attributes of citation"))
         self.inccensus_check = Gtk.CheckButton(_("Include Census information for people"))
-        self.urlshort_check = Gtk.CheckButton(_("url short"))
+        self.urlshort_check = Gtk.CheckButton(_("Title instead of url for links"))
         self.altname_check = Gtk.CheckButton(_("Display alternative name for place"))
         self.placegeneanet_check = Gtk.CheckButton(_("Geneanet format place"))
         self.ancplacename_check = Gtk.CheckButton(_("Display place name at the time"))

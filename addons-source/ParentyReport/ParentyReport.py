@@ -203,16 +203,13 @@ class ParentyReport(Report):
                             self.REL[phandle]=""
         num=parentypers
         num2=len(self.TIMS.keys())
-        msg = "= Recensement 1946=\n<BR><BR>"
-        self.doc.write_text(msg)
-        msg = "Cette page donne le recensement pour la commune de Plouguerneau en 1946 et le pourcentage de parenté avec moi meme\n<BR>\n"
-        self.doc.write_text(msg)
-        msg =  "<BR>Nombre total de personnes dans le recensement : " + str(num2)  + "<BR>Nombre total de personnes apparentés : " + str(num)  + "<BR><BR>\n"
-        self.doc.write_text(msg)
-        pct = 100.0 * num / num2
-        msg = "</b>" + str(format(pct, '.2f')) + "%</b> de personnes apparentées<BR><BR><BR>\n"
-        self.doc.write_text(msg)
         if nametag == "cousingen":
+            msg = "= Mes cousins Geneanet =\n<BR><BR>"
+            self.doc.write_text(msg)
+            msg = "Cette page donne la liste de mes cousins geneanet\n<BR>\n"
+            self.doc.write_text(msg)
+            msg =  "<BR>Nombre total de cousins : " + str(num) + "<BR><BR>\n"
+            self.doc.write_text(msg)
             msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH>"
             msg = msg + "</tr>"
             self.doc.write_text(msg)
@@ -220,23 +217,32 @@ class ParentyReport(Report):
             num = 1
             sortedDict = sorted(self.PARENTY.items(), reverse=True, key=lambda kv: kv[1])
             for key, value in sortedDict:
-                if RES[key][self.stringgen]:
-                    url = str(RES[key][self.stringgen])
+                if value > 0.0:
                     person = self.database.get_person_from_handle(key)
-                    p1 = person.get_primary_name().get_name()
-                    msg = "<TR><TD> <A HREF=\"" + url + "\">" + p1 + "</A></TD>"
-                else:
-                    person = self.database.get_person_from_handle(key)
-                    p1 = person.get_primary_name().get_name()
-                    msg = "<TR><TD>" + p1 + "</TD>"
-                msg = msg + "<TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) + "</TD>"
-                LOG.debug("NUM %d Nom %s REL %s" % (num,p1,str(self.REL[key])))
-                num = num + 1
-                msg = msg + "</TR>\n"
-                self.doc.write_text(msg)
+                    if RES[key][self.stringgen]:
+                        url = str(RES[key][self.stringgen])
+                        p1 = person.get_primary_name().get_name()
+                        msg = "<TR><TD> <A HREF=\"" + url + "\">" + p1 + "</A></TD>"
+                    else:
+                        p1 = person.get_primary_name().get_name()
+                        msg = "<TR><TD>" + p1 + "</TD>"
+                    msg = msg + "<TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) + "</TD>"
+                    LOG.debug("NUM %d Nom %s REL %s" % (num,p1,str(self.REL[key])))
+                    num = num + 1
+                    msg = msg + "</TR>\n"
+                    self.doc.write_text(msg)
             msg = "</TABLE>"
             self.doc.write_text(msg)
         if nametag == "recploug1946":
+            msg = "= Recensement 1946=\n<BR><BR>"
+            self.doc.write_text(msg)
+            msg = "Cette page donne le recensement pour la commune de Plouguerneau en 1946 et le pourcentage de parenté avec moi meme\n<BR>\n"
+            self.doc.write_text(msg)
+            msg =  "<BR>Nombre total de personnes dans le recensement : " + str(num2)  + "<BR>Nombre total de personnes apparentés : " + str(num)  + "<BR><BR>\n"
+            self.doc.write_text(msg)
+            pct = 100.0 * num / num2
+            msg = "<b>" + str(format(pct, '.2f')) + "%</b> de personnes apparentées<BR><BR><BR>\n"
+            self.doc.write_text(msg)
             msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>Nom Recensement</TH><TH>Adresse</TH><TH>Relation</TH><TH>Date Naissance</TH><TH>Nationalité</TH><TH>Profession</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH>"
             msg = msg + "</tr>"
             self.doc.write_text(msg)
@@ -258,6 +264,12 @@ class ParentyReport(Report):
             msg = "</TABLE>"
             self.doc.write_text(msg)
         if nametag == 'star':
+            msg = "= Mes cousins star =\n<BR><BR>"
+            self.doc.write_text(msg)
+            msg = "Cette page donne la liste de mes cousins mondialement connu\n<BR>\n"
+            self.doc.write_text(msg)
+            msg =  "<BR>Nombre total de stars : " + str(num)  + "<BR><BR>\n"
+            self.doc.write_text(msg)
             sortedDict = sorted(self.PARENTY.items(), reverse=True, key=lambda kv: kv[1])
             msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>Lien</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TR>"
             self.doc.write_text(msg)
@@ -278,18 +290,32 @@ class ParentyReport(Report):
             msg = "</TABLE>"
             self.doc.write_text(msg)
         if nametag == 'ADN':
+
+            msg=""" =Correspondance ADN=
+Vous trouverez un tableau contenant mes match ADN pour lesquels j'ai trouvé au moins un ancêtre commun.
+Voici une description des différents champs
+
+* '''Anom''' : individu anonymisé
+* '''%parenté''' : le pourcentage de parenté entre l'individu et moi-même sur une prodondeur de 15 générations.
+* '''Relation la plus proche''' : comme son nom l indique la relation la plus proche avec ce cousin
+* '''Nombre de liens''' : nombre de chemin relationel entre l'individu et moi-même limité sur une profondeur de 15 généraitons.
+
+Les colonnes suivantes concernés les résultats sur les différents sites.\n<BR>"""
+            self.doc.write_text(msg)
+            msg = "<b>" + str(num) + "</b> personnes apparentées<BR><BR><BR>\n"
+            self.doc.write_text(msg)
             msg = "<TABLE class=\"tabwiki\"><TR><TH>Anom</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH>"
             LOG.debug("longueyr attribut %d" % len(self.attr))
             for att in self.attr:
                 msg = msg + "<TH>" + att + "</TH>"
-                LOG.debug("parente%s P1 %s" % (msg,p1))
             msg = msg + "</tr>"
             self.doc.write_text(msg)
 #            LOG.debug("longueyr attribut %d" % len(self.attr))
             num = 1
             sortedDict = sorted(self.PARENTY.items(), reverse=True, key=lambda kv: kv[1])
             for key, value in sortedDict:
-                p1 = key.get_primary_name().get_name()
+                person = self.database.get_person_from_handle(key)
+                p1 = person.get_primary_name().get_name()
                 msg = "<TR><TD>" + str(num) + "</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[key]) + "</TD><TD>" + str(self.LEN[key]) + "</TD>"
                 LOG.debug("NUM %d Nom %s REL %s" % (num,p1,str(self.REL[key])))
                 num = num + 1
