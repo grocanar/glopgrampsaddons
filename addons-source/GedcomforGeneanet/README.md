@@ -25,8 +25,9 @@ Ce greffon est une "amélioration" de l'export gedcom de Geneanet. Il apporte le
 
 ## Installation
 
-Pour utiliser ce greffons il faut télécharger le fichier zip de la version souhaitée (avec XX = 42, 50, …) et
+Pour utiliser ce greffons il faut télécharger le fichier zip de la version souhaitée (avec XX = 42, 50, …) à l'url suivante:
 
+https://github.com/grocanar/glopgrampsaddons/blob/main/addons/5.1/download/GedcomforGeneanet.zip
 * Sous unix dezipper le fichier dans le répertoire $HOME/.gramps/grampsXX/plugins/
 * Sous Windows dezipper le fichier dans le répertoire %APPDATA%\gramps\grampsXX\plugins (APPDATA vaut par défaut C:\USER%USERNAME%\AppData\Roaming avec %USERNAME% le nom de l'utilisateur sous Windows 10). Il faut néanmoins quitter GRAMPS avant de lancer l'opération.
 
