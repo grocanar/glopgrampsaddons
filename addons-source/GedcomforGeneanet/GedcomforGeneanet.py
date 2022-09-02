@@ -834,7 +834,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                         devel = 2
                         if (ref.ref == event.handle): 
                             role = int(ref.get_role())
-                            if int(ref.get_role()) in [EventRoleType.WITNESS,EventRoleType.CELEBRANT, EventRoleType.AIDE ,EventRoleType.CLERGY, EventRoleType.AIDE,EventRoleType.FAMILY,EventRoleType.CUSTOM]:
+                            if int(ref.get_role()) in [EventRoleType.CELEBRANT, EventRoleType.AIDE ,EventRoleType.CLERGY, EventRoleType.AIDE,EventRoleType.FAMILY,EventRoleType.CUSTOM]:
                                 level = 2
                                 rol = role + 1
                                 self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
@@ -852,6 +852,12 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                 self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
                                 self._writeln(level+1, "TYPE", "INDI")
                                 self._writeln(level+1, "RELA", "Informant")
+                            elif role in [EventRoleType.WITNESS]:
+                                level = 2
+                                rol = role + 1
+                                self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                self._writeln(level+1, "TYPE", "INDI")
+                                self._writeln(level+1, "RELA", "Witness")
 
 
     def _process_person_event(self, person ,event ,event_ref):
@@ -902,7 +908,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                         for ref in person2.get_event_ref_list():
                             if (ref.ref == event.handle):  
                                 role=int(ref.get_role())
-                                if int(ref.get_role()) in [EventRoleType.WITNESS, EventRoleType.CELEBRANT, EventRoleType.INFORMANT, EventRoleType.AIDE, EventRoleType.CLERGY, EventRoleType.AIDE, EventRoleType.FAMILY, EventRoleType.CUSTOM]:
+                                if int(ref.get_role()) in [EventRoleType.CELEBRANT, EventRoleType.AIDE, EventRoleType.CLERGY, EventRoleType.AIDE, EventRoleType.FAMILY, EventRoleType.CUSTOM]:
                                     level = 2
 #pylint: disable=maybe-no-member
                                     rol = role + 1
@@ -915,6 +921,19 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                         else:
                                             self._writeln(level+1, "NOTE", '\xA0%s' % str(ref.role))
                                     self._note_references(ref.get_note_list(), level+1)
+                                elif role in [EventRoleType.INFORMANT]:
+                                    level = 2
+                                    rol = role + 1
+                                    self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                    self._writeln(level+1, "TYPE", "INDI")
+                                    self._writeln(level+1, "RELA", "Informant")
+                                elif role in [EventRoleType.WITNESS]:
+                                    level = 2
+                                    rol = role + 1
+                                    self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                    self._writeln(level+1, "TYPE", "INDI")
+                                    self._writeln(level+1, "RELA", "Witness")
+
 
     def _dump_event_stats(self, event, event_ref):
         """
