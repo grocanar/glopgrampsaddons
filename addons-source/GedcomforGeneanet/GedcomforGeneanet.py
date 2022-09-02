@@ -742,7 +742,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                     for ref in person.get_event_ref_list():
                         if ref.ref == event.handle:
                             role=int(ref.get_role())
-                            if role in [EventRoleType.WITNESS,EventRoleType.CELEBRANT, EventRoleType.INFORMANT, EventRoleType.CLERGY, EventRoleType.AIDE, EventRoleType.FAMILY, EventRoleType.CUSTOM]:
+                            if role in [EventRoleType.WITNESS,EventRoleType.CELEBRANT,  EventRoleType.CLERGY, EventRoleType.AIDE, EventRoleType.FAMILY, EventRoleType.CUSTOM]:
                                 level = 2
                                 rol = role + 1
                                 self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
@@ -754,6 +754,12 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                     else:
                                         self._writeln(level+1, "NOTE", '\xA0%s' % str(ref.role))
                                 self._note_references(ref.get_note_list(), level+1)
+                            elif role in [EventRoleType.INFORMANT]:
+                                level = 2
+                                rol = role + 1
+                                self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                self._writeln(level+1, "TYPE", "INDI")
+                                self._writeln(level+1, "RELA", "Informant")
 
     def _sources(self):
         """
@@ -781,6 +787,22 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             if source.get_abbreviation():
                 self._writeln(1, 'ABBR', source.get_abbreviation())
 
+            for srcattr in source.get_attribute_list():
+                level = 1
+                if self.urlshort:
+                    url_pattern = "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
+                    link = re.match(url_pattern, srcattr.value)
+                    if link:
+                        url=link.group()
+                        text = "<A HREF=\"" + str(url) + "\" title=\"" + str(url) + "\">" + str(srcattr.type) + "</A>"
+                        self._writeln(level + 1,"DATA" , text)
+                    else:
+                        self._writeln(level + 1,"DATA", str(srcattr.type))
+                        self._writeln(level + 2,"TEXT", srcattr.value)
+
+                else:
+                    self._writeln(level + 1,"DATA", str(srcattr.type))
+                    self._writeln(level + 2, "TEXT", srcattr.value)
             self._photos(source.get_media_list(), 1)
 
             if self.include_depot:
@@ -812,7 +834,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                         devel = 2
                         if (ref.ref == event.handle): 
                             role = int(ref.get_role())
-                            if int(ref.get_role()) in [EventRoleType.WITNESS,EventRoleType.CELEBRANT, EventRoleType.INFORMANT, EventRoleType.AIDE ,EventRoleType.CLERGY, EventRoleType.AIDE,EventRoleType.FAMILY,EventRoleType.CUSTOM]:
+                            if int(ref.get_role()) in [EventRoleType.WITNESS,EventRoleType.CELEBRANT, EventRoleType.AIDE ,EventRoleType.CLERGY, EventRoleType.AIDE,EventRoleType.FAMILY,EventRoleType.CUSTOM]:
                                 level = 2
                                 rol = role + 1
                                 self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
@@ -824,6 +846,13 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                     else:
                                         self._writeln(level+1, "NOTE", '\xA0%s' % str(ref.role))
                                 self._note_references(ref.get_note_list(), level+1)
+                            elif role in [EventRoleType.INFORMANT]:
+                                level = 2
+                                rol = role + 1
+                                self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                self._writeln(level+1, "TYPE", "INDI")
+                                self._writeln(level+1, "RELA", "Informant")
+
 
     def _process_person_event(self, person ,event ,event_ref):
         """
