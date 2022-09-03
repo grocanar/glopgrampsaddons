@@ -742,8 +742,9 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                     for ref in person.get_event_ref_list():
                         if ref.ref == event.handle:
                             role=int(ref.get_role())
-                            if role in [EventRoleType.WITNESS,EventRoleType.CELEBRANT,  EventRoleType.CLERGY, EventRoleType.AIDE, EventRoleType.FAMILY, EventRoleType.CUSTOM]:
+                            if role in [EventRoleType.CELEBRANT,  EventRoleType.CLERGY, EventRoleType.AIDE, EventRoleType.FAMILY, EventRoleType.CUSTOM]:
                                 level = 2
+
                                 rol = role + 1
                                 self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
                                 self._writeln(level+1, "TYPE", "INDI")
@@ -760,6 +761,13 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                 self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
                                 self._writeln(level+1, "TYPE", "INDI")
                                 self._writeln(level+1, "RELA", "Informant")
+                            elif role in [EventRoleType.WITNESS]:
+                                level = 2
+                                rol = role + 1
+                                self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                self._writeln(level+1, "TYPE", "INDI")
+                                self._writeln(level+1, "RELA", "Witness")
+
 
     def _sources(self):
         """
