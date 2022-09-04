@@ -932,13 +932,13 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                 elif role in [EventRoleType.INFORMANT]:
                                     level = 2
                                     rol = role + 1
-                                    self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                    self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
                                     self._writeln(level+1, "TYPE", "INDI")
                                     self._writeln(level+1, "RELA", "Informant")
                                 elif role in [EventRoleType.WITNESS]:
                                     level = 2
                                     rol = role + 1
-                                    self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                    self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
                                     self._writeln(level+1, "TYPE", "INDI")
                                     self._writeln(level+1, "RELA", "Witness")
 
