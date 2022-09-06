@@ -746,14 +746,23 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                 level = 2
 
                                 rol = role + 1
-                                self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
-                                self._writeln(level+1, "TYPE", "INDI")
-                                self._writeln(level+1, "RELA", "Witness")
-                                if self.extended_role:
-                                    if role:
-                                        self._writeln(level+1, "NOTE", '\xA0%s' % EventRoleType._DATAMAP[rol][1])
-                                    else:
-                                        self._writeln(level+1, "NOTE", '\xA0%s' % str(ref.role))
+                                if str(ref.role) == "Mentionnée" or str(ref.role) == "Mentionné":
+                                    self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                    self._writeln(level+1, "TYPE", "INDI")
+                                    self._writeln(level+1, "RELA", "Mentioned")
+                                elif str(ref.role) == "Présence":
+                                    self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                    self._writeln(level+1, "TYPE", "INDI")
+                                    self._writeln(level+1, "RELA", "Attending")
+                                else:
+                                    self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                    self._writeln(level+1, "TYPE", "INDI")
+                                    self._writeln(level+1, "RELA", "Witness")
+                                    if self.extended_role:
+                                        if role:
+                                            self._writeln(level+1, "NOTE", '\xA0%s' % EventRoleType._DATAMAP[rol][1])
+                                        else:
+                                            self._writeln(level+1, "NOTE", '\xA0%s' % str(ref.role))
                                 self._note_references(ref.get_note_list(), level+1)
                             elif role in [EventRoleType.INFORMANT]:
                                 level = 2
@@ -845,14 +854,23 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                             if int(ref.get_role()) in [EventRoleType.CELEBRANT, EventRoleType.AIDE ,EventRoleType.CLERGY, EventRoleType.AIDE,EventRoleType.FAMILY,EventRoleType.CUSTOM]:
                                 level = 2
                                 rol = role + 1
-                                self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
-                                self._writeln(level+1, "TYPE", "INDI")
-                                self._writeln(level+1, "RELA", "Witness")
-                                if self.extended_role:
-                                    if role:
-                                        self._writeln(level+1, "NOTE", '\xA0%s' % EventRoleType._DATAMAP[rol][1])
-                                    else:
-                                        self._writeln(level+1, "NOTE", '\xA0%s' % str(ref.role))
+                                if str(ref.role) == "Mentionnée" or str(ref.role) == "Mentionné":
+                                    self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                    self._writeln(level+1, "TYPE", "INDI")
+                                    self._writeln(level+1, "RELA", "Mentioned")
+                                elif str(ref.role) == "Présence":
+                                    self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                    self._writeln(level+1, "TYPE", "INDI")
+                                    self._writeln(level+1, "RELA", "Attending")
+                                else:
+                                    self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                    self._writeln(level+1, "TYPE", "INDI")
+                                    self._writeln(level+1, "RELA", "Witness")
+                                    if self.extended_role:
+                                        if role:
+                                            self._writeln(level+1, "NOTE", '\xA0%s' % EventRoleType._DATAMAP[rol][1])
+                                        else:
+                                            self._writeln(level+1, "NOTE", '\xA0%s' % str(ref.role))
                                 self._note_references(ref.get_note_list(), level+1)
                             elif role in [EventRoleType.INFORMANT]:
                                 level = 2
@@ -891,14 +909,23 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                             if (ref.ref == event.handle):
                                 if (int(ref.get_role()) == EventRoleType.CUSTOM):
                                     level = 1
-                                    self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
-                                    self._writeln(level+1, "TYPE", "INDI")
-                                    if person2.get_gender() == Person.MALE:
-                                        self._writeln(level+1, "RELA", "Godfather")
-                                    elif person2.get_gender() == Person.FEMALE:
-                                        self._writeln(level+1, "RELA", "Godmother")
+                                    if str(ref.role) == "Mentionnée" or str(ref.role) == "Mentionné":
+                                        self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
+                                        self._writeln(level+1, "TYPE", "INDI")
+                                        self._writeln(level+1, "RELA", "Mentioned")
+                                    elif str(ref.role) == "Présence":
+                                        self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
+                                        self._writeln(level+1, "TYPE", "INDI")
+                                        self._writeln(level+1, "RELA", "Attending")
                                     else:
-                                        self._writeln(level+1, "RELA", "Unknown")
+                                        self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
+                                        self._writeln(level+1, "TYPE", "INDI")
+                                        if person2.get_gender() == Person.MALE:
+                                            self._writeln(level+1, "RELA", "Godfather")
+                                        elif person2.get_gender() == Person.FEMALE:
+                                            self._writeln(level+1, "RELA", "Godmother")
+                                        else:
+                                            self._writeln(level+1, "RELA", "Unknown")
 
                                     self._note_references(ref.get_note_list(), level+1)
                                 else:
@@ -920,14 +947,23 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                     level = 2
 #pylint: disable=maybe-no-member
                                     rol = role + 1
-                                    self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
-                                    self._writeln(level+1, "TYPE", "INDI")
-                                    self._writeln(level+1, "RELA", "Witness")
-                                    if self.extended_role:
-                                        if role:
-                                            self._writeln(level+1, "NOTE", '\xA0%s' % EventRoleType._DATAMAP[rol][1])
-                                        else:
-                                            self._writeln(level+1, "NOTE", '\xA0%s' % str(ref.role))
+                                    if str(ref.role) == "Mentionnée" or str(ref.role) == "Mentionné":
+                                        self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
+                                        self._writeln(level+1, "TYPE", "INDI")
+                                        self._writeln(level+1, "RELA", "Mentioned")
+                                    elif str(ref.role) == "Présence":
+                                        self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
+                                        self._writeln(level+1, "TYPE", "INDI")
+                                        self._writeln(level+1, "RELA", "Attending")
+                                    else:
+                                        self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
+                                        self._writeln(level+1, "TYPE", "INDI")
+                                        self._writeln(level+1, "RELA", "Witness")
+                                        if self.extended_role:
+                                            if role:
+                                                self._writeln(level+1, "NOTE", '\xA0%s' % EventRoleType._DATAMAP[rol][1])
+                                            else:
+                                                self._writeln(level+1, "NOTE", '\xA0%s' % str(ref.role))
                                     self._note_references(ref.get_note_list(), level+1)
                                 elif role in [EventRoleType.INFORMANT]:
                                     level = 2
