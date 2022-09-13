@@ -95,6 +95,9 @@ QUALITY_MAP = {
     Citation.CONF_LOW       : "0",
     Citation.CONF_VERY_LOW  : "0",
 }
+NEEDS_PARAMETER = set(
+    ["CAST", "DSCR", "EDUC", "IDNO", "NATI", "NCHI",
+     "NMR", "OCCU", "PROP", "RELI", "SSN", "TITL"])
 
 GRAMPLET_CONFIG_NAME = "gedcomforgeneanet"
 CONFIG = config.register_manager("gedcomforgeneanet")
@@ -115,6 +118,7 @@ CONFIG.register("preferences.urlshort", True)
 CONFIG.register("preferences.altname", True)
 CONFIG.register("preferences.placegeneanet", True)
 CONFIG.register("preferences.ancplacename", True)
+CONFIG.register("preferences.extendedtitle", True)
 CONFIG.load()
 
 #-------------------------------------------------------------------------
@@ -138,6 +142,21 @@ def sort_handles_by_id(handle_list, handle_to_object):
             sorted_list.append(data)
     sorted_list.sort()
     return sorted_list
+
+def event_has_subordinate_data(event, event_ref):
+    """ determine if event is empty or not """
+    if event and event_ref:
+        return (event.get_description().strip() or
+                not event.get_date_object().is_empty() or
+                event.get_place_handle() or
+                event.get_attribute_list() or
+                event_ref.get_attribute_list() or
+                event.get_note_list() or
+                event.get_citation_list() or
+                event.get_media_list())
+    else:
+        return False
+
 
 
 class PlaceDisplayGeneanet(place.PlaceDisplay):
@@ -263,6 +282,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.altname = option_box.altname
             self.placegeneanet = option_box.placegeneanet
             self.ancplacename = option_box.ancplacename
+            self.extendedtitle = option_box.extendedtitle
             CONFIG.save()
         else:
             LOG.debug("pas dans OPTION %s")
@@ -282,6 +302,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.altname = 0
             self.placegeneanet = 0
             self.ancplacename = 0
+            self.extendedtitle = 0
         self.zipfile = None
 
     def get_filtered_database(self, dbase, progress=None, preview=False):
@@ -332,7 +353,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                             ).format(number_of=people_count) )
         return dbase
 
-    def _place(self, place, dateobj, level):
+    def _place(self, place, dateobj, level , ancplacename):
         """
         PLACE_STRUCTURE:=
             n PLAC <PLACE_NAME> {1:1}
@@ -391,20 +412,21 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                 self._writeln(level + 1, 'POST', postal_code)
             if country:
                 self._writeln(level + 1, 'CTRY', country)
-        if self.placegeneanet and self.ancplacename:
+        if self.placegeneanet and self.ancplacename and ancplacename:
             anc_name = displayer.display(self.dbase, place, dateobj)
             if anc_name != place_name:
                 place_name = _pd.display(self.dbase, place, dateobj)
                 text = _("Place name at the time") + " : "  + place_name
                 self._writeln(2, 'NOTE' , text )
-        if self.altname:
+        if self.altname and ancplacename:
             alt_names=self.display_alt_names(place)
             if len(alt_names) > 0:
                 text = _("Alternate name for place ") + '\n'.join(alt_names)
                 self._writeln(2, 'NOTE' , text )
         else:
             LOG.debug(" PAS PLACENOTE")
-        self._note_references(place.get_note_list(), level + 1)
+        if ancplacename:
+            self._note_references(place.get_note_list(), level + 1)
 
     def display_alt_names(self, place):
         """
@@ -671,6 +693,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             return '%s /%s/' % (firstname, surname)
         return '%s /%s/ %s' % (firstname, surname, suffix)
 
+
     def _photo(self, photo, level):
         """
         Overloaded media-handling method to skip over media
@@ -708,7 +731,13 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.zipfile.write(path)
 
     def _family_events(self, family):
-        super(GedcomWriterforGeneanet, self)._family_events(family)
+        for event_ref in family.get_event_ref_list():
+            event = self.dbase.get_event_from_handle(event_ref.ref)
+            if event is None:
+                continue
+            self._process_family_event(event, event_ref)
+            self._dump_event_stats(event, event_ref,True)
+
         level = 1
 #        self._writeln(level,"TEST")
         if (int(family.get_relationship()) == FamilyRelType.UNMARRIED or int(family.get_relationship()) == FamilyRelType.UNKNOWN):
@@ -734,6 +763,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         """
         super(GedcomWriterforGeneanet, self)._process_family_event(event,\
                                                                  event_ref)
+
         if self.include_witnesses:
             for (objclass, handle) in self.dbase.find_backlink_handles(
                 event.handle, ['Person']):
@@ -754,6 +784,14 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                     self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
                                     self._writeln(level+1, "TYPE", "INDI")
                                     self._writeln(level+1, "RELA", "Attending")
+                                elif str(ref.role) == "Parrain":
+                                    self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                    self._writeln(level+1, "TYPE", "INDI")
+                                    self._writeln(level+1, "RELA", "GodFather")
+                                elif str(ref.role) == "Marraine":
+                                    self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                    self._writeln(level+1, "TYPE", "INDI")
+                                    self._writeln(level+1, "RELA", "GodMother")
                                 else:
                                     self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
                                     self._writeln(level+1, "TYPE", "INDI")
@@ -835,7 +873,16 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         Write the witnesses associated with the birth and death event. 
         based on http://www.geneanet.org/forum/index.php?topic=432352.0&lang=fr
         """
-        super(GedcomWriterforGeneanet, self)._person_event_ref(key,event_ref)
+        if event_ref:
+            event = self.dbase.get_event_from_handle(event_ref.ref)
+            if event_has_subordinate_data(event, event_ref):
+                self._writeln(1, key)
+            else:
+                self._writeln(1, key, 'Y')
+            if event.get_description().strip() != "":
+                self._writeln(2, 'TYPE', event.get_description())
+            self._dump_event_stats(event, event_ref,True)
+
         if self.include_witnesses and event_ref:
             role = int(event_ref.get_role())
             if role != EventRoleType.PRIMARY:
@@ -862,6 +909,14 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                     self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
                                     self._writeln(level+1, "TYPE", "INDI")
                                     self._writeln(level+1, "RELA", "Attending")
+                                elif str(ref.role) == "Parrain":
+                                    self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                    self._writeln(level+1, "TYPE", "INDI")
+                                    self._writeln(level+1, "RELA", "GodFather")
+                                elif str(ref.role) == "Marraine":
+                                    self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
+                                    self._writeln(level+1, "TYPE", "INDI")
+                                    self._writeln(level+1, "RELA", "GodMother")
                                 else:
                                     self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
                                     self._writeln(level+1, "TYPE", "INDI")
@@ -890,7 +945,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         """
         Write the witnesses associated with other personnal event.
         """
-        super(GedcomWriterforGeneanet, self)._process_person_event(person, event , event_ref)
+        global adop_written
         etype = int(event.get_type())
         # if the event is a birth or death, skip it.
         if etype in (EventType.BIRTH, EventType.DEATH, EventType.MARRIAGE):
@@ -899,6 +954,40 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         if role != EventRoleType.PRIMARY:
             return
         devel = 2
+        val = libgedcom.PERSONALCONSTANTEVENTS.get(etype, "").strip()
+        if val and val.strip():
+            if val in NEEDS_PARAMETER:
+                if event.get_description().strip():
+                    self._writeln(1, val, event.get_description())
+                else:
+                    self._writeln(1, val)
+            else:
+                if event_has_subordinate_data(event, event_ref):
+                    self._writeln(1, val)
+                else:
+                    self._writeln(1, val, 'Y')
+                if event.get_description().strip():
+                    self._writeln(2, 'TYPE', event.get_description())
+        else:
+            descr = event.get_description()
+            if descr:
+                self._writeln(1, 'EVEN', descr)
+            else:
+                self._writeln(1, 'EVEN')
+            if val.strip():
+                self._writeln(2, 'TYPE', val)
+            else:
+                self._writeln(2, 'TYPE', event.get_type().xml_str())
+
+        etype = int(event.get_type())
+        if etype == EventType.NOB_TITLE:
+            self._dump_event_stats(event, event_ref,False)
+        else:
+            self._dump_event_stats(event, event_ref,True)
+        if etype == EventType.ADOPT and not adop_written:
+            adop_written = True
+            self._adoption_records(person, adop_written)
+
         if self.include_witnesses:
             if etype in (EventType.BAPTISM, EventType.CHRISTEN):
                 for (objclass, handle) in self.dbase.find_backlink_handles(
@@ -917,6 +1006,14 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                         self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
                                         self._writeln(level+1, "TYPE", "INDI")
                                         self._writeln(level+1, "RELA", "Attending")
+                                    elif str(ref.role) == "Parrain":
+                                        self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
+                                        self._writeln(level+1, "TYPE", "INDI")
+                                        self._writeln(level+1, "RELA", "GodFather")
+                                    elif str(ref.role) == "Marraine":
+                                        self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
+                                        self._writeln(level+1, "TYPE", "INDI")
+                                        self._writeln(level+1, "RELA", "GodMother")
                                     else:
                                         self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
                                         self._writeln(level+1, "TYPE", "INDI")
@@ -955,6 +1052,14 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                         self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
                                         self._writeln(level+1, "TYPE", "INDI")
                                         self._writeln(level+1, "RELA", "Attending")
+                                    elif str(ref.role) == "Parrain":
+                                        self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
+                                        self._writeln(level+1, "TYPE", "INDI")
+                                        self._writeln(level+1, "RELA", "GodFather")
+                                    elif str(ref.role) == "Marraine":
+                                        self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
+                                        self._writeln(level+1, "TYPE", "INDI")
+                                        self._writeln(level+1, "RELA", "GodMother")
                                     else:
                                         self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
                                         self._writeln(level+1, "TYPE", "INDI")
@@ -978,8 +1083,16 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                     self._writeln(level+1, "TYPE", "INDI")
                                     self._writeln(level+1, "RELA", "Witness")
 
+        if val == "TITL" and self.extendedtitle:
+            descr = event.get_description()
+            if descr:
+                self._writeln(1, 'EVEN', descr)
+            else:
+                self._writeln(1, 'EVEN')
+            self._writeln(2, 'TYPE', 'Titre')
+            self._dump_event_stats(event, event_ref,True)
 
-    def _dump_event_stats(self, event, event_ref):
+    def _dump_event_stats(self, event, event_ref,ancplace):
         """
         Write the event details for the event, using the event and event
         reference information.
@@ -1001,7 +1114,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
 
         if event.get_place_handle():
             place = self.dbase.get_place_from_handle(event.get_place_handle())
-            self._place(place, dateobj, 2)
+            self._place(place, dateobj, 2, ancplace)
 
         for attr in event.get_attribute_list():
             attr_type = attr.get_type()
@@ -1043,13 +1156,13 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                     self._writeln(3,'CONT', text )
             
             
+        if ancplace:
+            self._note_references(event.get_note_list(), 2)
+            self._source_references(event.get_citation_list(), 2)
 
-        self._note_references(event.get_note_list(), 2)
-        self._source_references(event.get_citation_list(), 2)
-
-        self._photos(event.get_media_list(), 2)
-        if place:
-            self._photos(place.get_media_list(), 2)
+            self._photos(event.get_media_list(), 2)
+            if place:
+                self._photos(place.get_media_list(), 2)
     
 
     def _attributes(self, person):
@@ -1338,6 +1451,8 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.placegeneanet_check = None
         self.ancplacename = CONFIG.get("preferences.ancplacename")
         self.ancplacename_check = None
+        self.extendedtitle = CONFIG.get("preferences.extendedtitle")
+        self.extendedtitle_check = None
         self.inccensus = CONFIG.get("preferences.inccensus")
         self.inccensus_check = None
         self.urlshort = CONFIG.get("preferences.urlshort")
@@ -1362,6 +1477,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.altname_check = Gtk.CheckButton(_("Display alternative name for place"))
         self.placegeneanet_check = Gtk.CheckButton(_("Geneanet format place"))
         self.ancplacename_check = Gtk.CheckButton(_("Display place name at the time"))
+        self.extendedtitle_check = Gtk.CheckButton(_("Display Extended Title"))
         #self.include_witnesses_check.set_active(1)
         self.include_witnesses_check.set_active(CONFIG.get("preferences.include_witnesses"))
         self.include_media_check.set_active(CONFIG.get("preferences.include_media"))
@@ -1379,6 +1495,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.altname_check.set_active(CONFIG.get("preferences.altname"))
         self.placegeneanet_check.set_active(CONFIG.get("preferences.placegeneanet"))
         self.ancplacename_check.set_active(CONFIG.get("preferences.ancplacename"))
+        self.extendedtitle_check.set_active(CONFIG.get("preferences.extendedtitle"))
 
         # Add to gui:
         option_box.pack_start(self.include_witnesses_check, False, False, 0)
@@ -1397,6 +1514,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         option_box.pack_start(self.altname_check, False, False, 0)
         option_box.pack_start(self.placegeneanet_check, False, False, 0)
         option_box.pack_start(self.ancplacename_check, False, False, 0)
+        option_box.pack_start(self.extendedtitle_check, False, False, 0)
         return option_box
 
     def parse_options(self):
@@ -1436,6 +1554,9 @@ class GedcomWriterOptionBox(WriterOptionBox):
             self.placegeneanet = self.placegeneanet_check.get_active()
         if self.ancplacename_check:
             self.ancplacename = self.ancplacename_check.get_active()
+        if self.extendedtitle_check:
+            self.extendedtitle = self.extendedtitle_check.get_active()
+        CONFIG.set("preferences.include_witnesses" , self.include_witnesses )
         CONFIG.set("preferences.include_witnesses" , self.include_witnesses )
         CONFIG.set("preferences.include_media" , self.include_media)
         CONFIG.set("preferences.include_depot" , self.include_depot)
@@ -1452,6 +1573,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         CONFIG.set("preferences.altname" , self.altname)
         CONFIG.set("preferences.placegeneanet" , self.placegeneanet)
         CONFIG.set("preferences.ancplacename" , self.ancplacename)
+        CONFIG.set("preferences.extendedtitle" , self.extendedtitle)
         CONFIG.save()
 
 def export_data(database, filename, user, option_box=None):

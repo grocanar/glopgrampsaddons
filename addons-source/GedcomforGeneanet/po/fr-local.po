@@ -121,3 +121,9 @@ msgstr "Noms alternatifs du lieu"
 
 msgid "Title instead of url for links"
 msgstr "Titre au lieu de l url pour les liens"
+
+msgid "Title"
+msgstr "Titre" 
+
+msgid "Display Extended Title"
+msgstr "Afficher les titres étendus"
