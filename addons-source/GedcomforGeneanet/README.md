@@ -21,6 +21,7 @@ Ce greffon est une "amélioration" de l'export gedcom de Geneanet. Il apporte le
 * Indication du nom du lieu à la date de l'événement
 * Indication des noms alternatifs des lieux
 * Suppression de la structure adresse optionnelle
+* Gestion de l'affichage des titres de noblesses
 
 
 ## Installation
@@ -90,3 +91,7 @@ Indique en note les noms alternatifs du lieu.
 ### Suppression de la structure adresse optionnelle
 
 La norme Gedcom permet l'inclusion d'une structure adresse optioennelle pour les lieux. C'est le focntionnement par défaut de GRAMPS. Mais cela entraine un souci lors de l'importation geneanet. 
+
+### Gestion des titres de noblesse
+
+Dans l'affichage de geneanet on pard un certain nombres d'information et le titre n'apparait pas dans la chronologie. Pour avoir un affichage plus clair et plus complet je crée a la voléé un evenement de type titre qui reprend de façon plus complète les informations contenues dans l'évenement titre de noblesse.
