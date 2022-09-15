@@ -1130,31 +1130,39 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                 self._writeln(2, 'EMAIL', attr.get_value())
             elif attr_type == _("WWW"):
                 self._writeln(2, 'WWW', attr.get_value())
+            else:
+                self._writeln(2, 'NOTE', str(attr_type) + ": " + attr.get_value())
 
         resultstring = ""
-        for attr in event_ref.get_attribute_list():
-            attr_type = attr.get_type()
-            if attr_type == AttributeType.AGE:
-                self._writeln(2, 'AGE', attr.get_value())
-            elif attr_type == AttributeType.FATHER_AGE:
-                self._writeln(2, 'HUSB')
-                self._writeln(3, 'AGE', attr.get_value())
-            elif attr_type == AttributeType.MOTHER_AGE:
-                self._writeln(2, 'WIFE')
-                self._writeln(3, 'AGE', attr.get_value())
-            
         etype = int(event.get_type())
-        if self.inccensus and etype == EventType.CENSUS:
-            attrs = event_ref.get_attribute_list()
-            if len(attrs):
-                self._writeln(2, 'NOTE' )
-                for attr in attrs:
+        if etype == EventType.CENSUS:
+            if self.inccensus:
+                attrs = event_ref.get_attribute_list()
+                if len(attrs):
+                    self._writeln(2, 'NOTE' )
+                    for attr in attrs:
+                        typ = str(attr.get_type())
+                        val = str(attr.get_value())
+                        LOG.debug("TYPE %s VAL %s" % ( typ , val))
+                        text = typ + " : " + val
+                        self._writeln(3,'CONT', text )
+        else:
+            for attr in event_ref.get_attribute_list():
+                attr_type = attr.get_type()
+                if attr_type == AttributeType.AGE:
+                    self._writeln(2, 'AGE', attr.get_value())
+                elif attr_type == AttributeType.FATHER_AGE:
+                    self._writeln(2, 'HUSB')
+                    self._writeln(3, 'AGE', attr.get_value())
+                elif attr_type == AttributeType.MOTHER_AGE:
+                    self._writeln(2, 'WIFE')
+                    self._writeln(3, 'AGE', attr.get_value())
+                else:  
+                    self._writeln(2, 'NOTE' )
                     typ = str(attr.get_type())
                     val = str(attr.get_value())
-                    LOG.debug("TYPE %s VAL %s" % ( typ , val))
                     text = typ + " : " + val
-                    self._writeln(3,'CONT', text )
-            
+                    self._writeln(3,'DATA', text )
             
         if ancplace:
             self._note_references(event.get_note_list(), 2)
