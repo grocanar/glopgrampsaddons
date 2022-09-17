@@ -1378,7 +1378,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                     if link:
                         url=link.group()
                         LOG.debug("deb write gedcom %s : %s  :" % ( str(url) , citattr.value ))
-                        text = "<A HREF=\"" + str(url) + "\" title=\"" + str(url) + "\">" + str(citattr.type) + "</A>"
+                        text = "<A HREF=\"" + str(url) + "\" title=\"" + str(url) + "\" target=_blank>" + str(citattr.type) + "</A>"
                         self._writeln(level + 1, "DATA" , text) 
                     else:
                         self._writeln(level + 1, "DATA", str(citattr.type))
