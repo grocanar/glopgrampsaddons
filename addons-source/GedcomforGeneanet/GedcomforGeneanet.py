@@ -940,6 +940,31 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                 self._writeln(level+1, "TYPE", "INDI")
                                 self._writeln(level+1, "RELA", "Witness")
 
+    def _remaining_events(self, person):
+        """
+        Output all events associated with the person that are not BIRTH or
+        DEATH events.
+
+        Because all we have are event references, we have to
+        extract the real event to discover the event type.
+
+        """
+        global adop_written
+        # adop_written is only shared between this function and
+        # _process_person_event. This is rather ugly code, but it is difficult
+        # to support an Adoption event without an Adopted relationship from the
+        # parent(s), an Adopted relationship from the parent(s) without an
+        # event, and both an event and a relationship. All these need to be
+        # supported without duplicating the output of the ADOP GEDCOM tag. See
+        # bug report 2370.
+        adop_written = False
+        for event_ref in person.get_event_ref_list():
+            event = self.dbase.get_event_from_handle(event_ref.ref)
+            if not event:
+                continue
+            self._process_person_event(person, event, event_ref)
+        if not adop_written:
+            self._adoption_records(person, adop_written)
 
     def _process_person_event(self, person ,event ,event_ref):
         """
