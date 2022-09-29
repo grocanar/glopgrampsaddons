@@ -980,7 +980,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             return
         devel = 2
         val = libgedcom.PERSONALCONSTANTEVENTS.get(etype, "").strip()
-        if val and val.strip():
+        if val and val.strip() and not val == "ADOP" :
             if val in NEEDS_PARAMETER:
                 if event.get_description().strip():
                     self._writeln(1, val, event.get_description())
@@ -999,10 +999,10 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                 self._writeln(1, 'EVEN', descr)
             else:
                 self._writeln(1, 'EVEN')
-            if val.strip():
+            if val.strip() and not val == "ADOP":
                 self._writeln(2, 'TYPE', val)
             else:
-                self._writeln(2, 'TYPE', event.get_type().xml_str())
+                self._writeln(2, 'TYPE', _(event.get_type().xml_str()))
 
         etype = int(event.get_type())
         if etype == EventType.NOB_TITLE:
