@@ -55,14 +55,12 @@ class IsFilleul(Rule):
     
     def apply(self,db,person):
        result = False
+       relation = [ "Filleul"  , "Filleule" ]
        relationship = get_relationship_calculator()
        refs = person.get_person_ref_list()
        if refs:
           for ref in person.serialize()[-1]:
               (a, b, c, two, value) = ref
-              person2 = db.get_person_from_handle(two)
-              rel = relationship.get_one_relationship(
-                    db, person2, person)
-              if rel == "Filleul" or "Filleule":
+              if value in relation:
                   result=True
        return result
