@@ -1155,6 +1155,8 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                 self._writeln(2, 'EMAIL', attr.get_value())
             elif attr_type == _("WWW"):
                 self._writeln(2, 'WWW', attr.get_value())
+            elif attr_type == AttributeType.TIME:
+                toto = 0
             else:
                 self._writeln(2, 'NOTE', str(attr_type) + ": " + attr.get_value())
 
