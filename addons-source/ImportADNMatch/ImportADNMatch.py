@@ -113,7 +113,6 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                     source.set_title(self.GeneanetSourceTitle)
                     self.db.add_source(source, self.trans)
                     self.db.commit_source(source, self.trans)
-                    print ("CRATION SOURCE GENEANET   ")
                     sourcesgeneanet = source
                 if not sourcesmyheritage:
                     source = Source()
@@ -147,7 +146,6 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                 with open(listefile, newline='') as myfile:
                     cor = csv.reader(myfile)
                     for L in cor:
-                        print ("L   ",L)
                         if num:
                             if L:
                                 if filetype == "MyHeritage":
@@ -162,7 +160,6 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                 with open(segmentfile, newline='') as myfile2:
                     seg = csv.reader(myfile2)
                     for L in seg:
-                        print ("S   ",L)
                         if num:
                             if L:
                                 if filetype == "Geneanet":
@@ -172,7 +169,6 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                                     fin=int(L[5])
                                     longueur=float(L[7])
                                     numsnp=int(L[6])
-               #                 print (" CHROM %s %d %d %f %d " % (chrom,deb,fin,longueur,numsnp))
                                 elif filetype == "MyHeritage":
                                     replaceid = myherownid + "-"
                                     ID=str(L[0].replace(replaceid,''))
@@ -185,9 +181,7 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                         else:
                             num = 1
                 for ID in MYLISTE.keys():
-                    print (ID," : " , MYLISTE[ID])
                     if ID in self.People.keys():
-                        print ("ID deja creer")
                         self.person=self.People[ID]
                     else:
                         self.person=self.create_people(self.db,ID,MYLISTE,attribute=attribute)
@@ -212,7 +206,6 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                                 texte = texte + "\n" + texto
                             else:
                                 texte = texto
-                            print ("CHROM %s %d %d %f %d " % (chrom,deb,fin,longueur,numsnp))
                         note=Note()
                         note.set(texte)
                         note.type.set(NoteType.ASSOCIATION)
@@ -239,25 +232,19 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
         if citationtype == "Geneanet":
             if self.GeneanetCitation:
                 citation = self.GeneanetCitation
-                print("GENEAT CIT trouve")
             else:
-                print("GENEAT CIT CREE")
                 citation=Citation()
                 citation.set_reference_handle(self.SourceGeneanet.get_handle())
                 self.db.add_citation(citation, self.trans)
                 self.db.commit_citation(citation, self.trans)
         elif citationtype == "MyHeritage":
             if self.MyHeritageCitation:
-                print("MYHER CIT trouve")
                 citation = self.MyHeritageCitation
             else:
                 citation=Citation()
-                print("MYHER CIT CREE")
                 citation.set_reference_handle(self.SourceMyHeritage.get_handle())
                 self.db.add_citation(citation, self.trans)
                 self.db.commit_citation(citation, self.trans)
-        else:
-            print("GROSS probleme ", citationtype)
         return citation
 
     def parsemyheritage(self):
@@ -273,7 +260,6 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                 with open(self.myherlistefile, newline='') as myfile:
                     cor = csv.reader(myfile)
                     for L in cor:
-                        print ("L   ",L)
                         if num:
                             if L:
                                 replaceid = myherownid + "-"
@@ -285,7 +271,6 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                 with open(self.myhersegmentfile, newline='') as myfile2:
                     seg = csv.reader(myfile2)
                     for L in seg:
-                        print ("S   ",L)
                         if num:
                             if L:
                                 replaceid = myherownid + "-"
@@ -295,14 +280,11 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                                 fin=int(L[5])
                                 longueur=float(L[8])
                                 numsnp=int(L[9])
-               #                 print (" CHROM %s %d %d %f %d " % (chrom,deb,fin,longueur,numsnp))
                                 MYHERSEG[ID].append((chrom,deb,fin,longueur,numsnp))
                         else:
                             num = 1
                 for ID in MYHERLISTE.keys():
-                    #print (ID," : " , MYHERLISTE[ID])
                     if ID in self.People.keys():
-                        print ("ID deja creer")
                         self.person=self.People[ID]
                     else:
                         self.person=self.create_people(self.db,ID,MYHERLISTE,attribute=self.MyHeritageMatchID)
@@ -327,7 +309,6 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                                 texte = texte + "\n" + texto
                             else:
                                 texte = texto
-                            print ("CHROM %s %d %d %f %d " % (chrom,deb,fin,longueur,numsnp))
                         note=Note()
                         note.set(texte)
                         note.type.set(NoteType.ASSOCIATION)
@@ -372,7 +353,6 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
         nom=MYHERLISTE[ID][1]
         self.name = Name()
         self.name.set_type(NameType(NameType.BIRTH))
-        print("NOM ",nom)
         N=nom.split()
         surname=N[-1]
         N.pop()
