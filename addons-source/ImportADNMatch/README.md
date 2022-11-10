@@ -50,7 +50,7 @@ There s one example below
 
 ![MyHeritage key](./myheritage2.png "MyHeritage key")
 
-Be Carefus wrong the addon is turning havoc 
+Be Careful if the key is wrong the addon is turning havoc 
 ## The Result
 
 After the import there s one individual created for each match.  And there s one association with the center person that contains data compatible with the dnasegment addon.
