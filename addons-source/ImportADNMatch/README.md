@@ -28,7 +28,9 @@ After installing it you should find the addon on the tool menu.
 After launching it you will get this windows
 On the first tab u should select the Center person. It s the person
 who make the adn test.
+
 ![Select center person](./indiv.png "Center person")
+
 foreach site you should check the button and give the path of the two files
 
 The example below show that we will import geneanet files but no myheritage files
