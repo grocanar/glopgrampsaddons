@@ -38,6 +38,19 @@ The example below show that we will import geneanet files but no myheritage file
 
 ![MyHeritage](./myheritage.png "MyHeritage")
 
-### The Result
+
+## Special configuration for MyHeritage
+
+You should add your matchid in the field **Unique key for user**
+
+You will find it in the segment file. 
+
+In the first column  there s the concatenation of your key and the key of the people. The ket is of the form ** D-\*...... ** 
+There s one example below 
+
+![MyHeritage key](./myheritage2.png "MyHeritage key")
+
+Be Carefus wrong the addon is turning havoc 
+## The Result
 
 After the import there s one individual created for each match.  And there s one association with the center person that contains data compatible with the dnasegment addon.

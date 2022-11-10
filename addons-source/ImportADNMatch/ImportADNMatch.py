@@ -39,8 +39,8 @@ from gramps.gui.plug import tool as Tool
 from gramps.gui.managedwindow import ManagedWindow
 from gramps.gui.utils import ProgressMeter
 from gramps.gui.plug import MenuToolOptions, PluginWindows
-from gramps.gen.plug.menu import StringOption, FilterOption, PersonOption, \
-    EnumeratedListOption, BooleanOption , NumberOption , DestinationOption
+from gramps.gen.plug.menu import StringOption, PersonOption, \
+    EnumeratedListOption, BooleanOption , NumberOption , DestinationOption 
 from collections import defaultdict
 from gramps.gen.lib import (Attribute, AttributeType, Citation , Name, NameType, Note, NoteType, Person , PersonRef , Source , Surname)
 import csv
@@ -79,6 +79,7 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
         self.myheritagelistefile=str(self.get_opt("myherlistefile"))
         self.myheritagesegmentfile = str(self.get_opt("myhersegmentfile"))
         self.myher = self.get_opt("myher")
+        self.myhermatchid = self.get_opt("myhermatchid")
         self.geneanetlistefile=str(self.get_opt("geneanetlistefile"))
         self.geneanetsegmentfile = str(self.get_opt("geneanetsegmentfile"))
         self.geneanet = self.get_opt("geneanet")
@@ -134,7 +135,7 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
             segmentfile = self.myheritagesegmentfile
             attribute=self.MyHeritageMatchID
             citationtype="MyHeritage"
-            myherownid = "D-8EF78206-5831-4EE2-A1C1-4F0342B15546"
+            myherownid = self.myhermatchid
         elif filetype == "Geneanet":
             listefile = self.geneanetlistefile
             segmentfile = self.geneanetsegmentfile
@@ -195,9 +196,13 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                                 assoc=True
                     if not assoc:
                         handle=self.person.get_handle()
+                        handle2=self.souche.get_handle()
                         self.personref = PersonRef()
+                        self.personref2 = PersonRef()
                         self.personref.ref = handle
+                        self.personref2.ref = handle2
                         self.personref.rel = "DNA"
+                        self.personref2.rel = "DNA"
                         texte="" 
                         for segment in MYSEG[ID]:
                             (chrom,deb,fin,longueur,numsnp)=segment
@@ -213,6 +218,7 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                         self.db.commit_note(note, self.trans)
                         handle=note.get_handle()
                         self.personref.add_note(handle)
+                        self.personref2.add_note(handle)
                         if citationtype == "Geneanet":
                             self.GeneanetCitation=self.get_or_create_citation(citationtype=citationtype)
                             handle=self.GeneanetCitation.get_handle()
@@ -220,8 +226,11 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                             self.MyHeritageCitation=self.get_or_create_citation(citationtype=citationtype)
                             handle=self.MyHeritageCitation.get_handle()
                         self.personref.add_citation(handle)
+                        self.personref2.add_citation(handle)
                         self.souche.add_person_ref(self.personref)
+                        self.person.add_person_ref(self.personref2)
                         self.db.commit_person(self.souche,self.trans)
+                        self.db.commit_person(self.person,self.trans)
 
         except EnvironmentError as err:
             user.notify_error(_("%s could not be opened\n") % filename, str(err))
@@ -246,85 +255,6 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                 self.db.add_citation(citation, self.trans)
                 self.db.commit_citation(citation, self.trans)
         return citation
-
-    def parsemyheritage(self):
-        MYHERLISTE=defaultdict(list)
-        MYHERSEG=defaultdict(list)
-        num  = 0
-        myherownid="D-8EF78206-5831-4EE2-A1C1-4F0342B15546"
-        try:
-            with DbTxn(_("ADNMatch import"), self.db, batch=True) as self.trans:
-                self.souche=self.db.get_person_from_gramps_id('I0000')
-                if not self.souche:
-                    self.souche=self.create_souche(self.db)
-                with open(self.myherlistefile, newline='') as myfile:
-                    cor = csv.reader(myfile)
-                    for L in cor:
-                        if num:
-                            if L:
-                                replaceid = myherownid + "-"
-                                ID=str(L[0].replace(replaceid,''))
-                                MYHERLISTE[ID]=L
-                        else:
-                            num = 1
-                num  = 0
-                with open(self.myhersegmentfile, newline='') as myfile2:
-                    seg = csv.reader(myfile2)
-                    for L in seg:
-                        if num:
-                            if L:
-                                replaceid = myherownid + "-"
-                                ID=str(L[0].replace(replaceid,''))
-                                chrom=str(L[3])
-                                deb=int(L[4])
-                                fin=int(L[5])
-                                longueur=float(L[8])
-                                numsnp=int(L[9])
-                                MYHERSEG[ID].append((chrom,deb,fin,longueur,numsnp))
-                        else:
-                            num = 1
-                for ID in MYHERLISTE.keys():
-                    if ID in self.People.keys():
-                        self.person=self.People[ID]
-                    else:
-                        self.person=self.create_people(self.db,ID,MYHERLISTE,attribute=self.MyHeritageMatchID)
-                    self.create_or_update_attrs(self.person,self.db,ID,MYHERLISTE)
-                    assoc=False
-                    for ref in self.souche.get_person_ref_list():
-                        person = self.db.get_person_from_handle(ref.ref)
-                        if person == self.person:
-                            result = ref.get_relation()
-                            if result == "DNA":
-                                assoc=True
-                    if not assoc:
-                        handle=self.person.get_handle()
-                        self.personref = PersonRef()
-                        self.personref.ref = handle
-                        self.personref.rel = "DNA"
-                        texte="" 
-                        for segment in MYHERSEG[ID]:
-                            (chrom,deb,fin,longueur,numsnp)=segment
-                            texto=",".join(str(e) for e in segment) 
-                            if texte:
-                                texte = texte + "\n" + texto
-                            else:
-                                texte = texto
-                        note=Note()
-                        note.set(texte)
-                        note.type.set(NoteType.ASSOCIATION)
-                        self.db.add_note(note, self.trans)
-                        self.db.commit_note(note, self.trans)
-                        handle=note.get_handle()
-                        self.personref.add_note(handle)
-                        self.MyHeritageCitation=self.get_or_create_citation(citationtype="MyHeritage")
-                        handle=self.MyHeritageCitation.get_handle()
-                        self.personref.add_citation(handle)
-                        self.souche.add_person_ref(self.personref)
-                        self.db.commit_person(self.souche,self.trans)
-
-        except EnvironmentError as err:
-            user.notify_error(_("%s could not be opened\n") % filename, str(err))
-        return
 
     def get_opt(self, name):
         """Get the options value for further processing.
@@ -426,6 +356,8 @@ class ImportADNMatchOptions(MenuToolOptions):
         self.myhersegmentfile.set_directory_entry(False)
         self.myhersegmentfile.set_extension('.csv')
         menu.add_option(category_name, "myhersegmentfile", self.myhersegmentfile)
+        self.myhermatchid = StringOption(_("Unique Key for user"),"")
+        menu.add_option(category_name, "myhermatchid", self.myhermatchid)
         category_name = _("Geneanet")
         fname="liste"
         self.geneanet = BooleanOption("Ficher Geneanet",False)
