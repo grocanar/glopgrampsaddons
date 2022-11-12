@@ -29,7 +29,8 @@ After installing it you should find the addon on the tool menu.
 After launching it you will get this windows
 On the first tab u should select the Center person. It s the person
 who make the adn test.
-U must give two the minimum value for centiMorgan to import
+
+U must give too the minimum value for centiMorgan to import
 
 ![Select center person](./indiv.png "Center person")
 
