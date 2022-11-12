@@ -13,6 +13,7 @@ Right now the addon can only import csv match file from
 
 * Myheritage
 * Geneanet
+* FTDNA
 
 In these site you can export two kind of files
 
@@ -28,6 +29,7 @@ After installing it you should find the addon on the tool menu.
 After launching it you will get this windows
 On the first tab u should select the Center person. It s the person
 who make the adn test.
+U must give two the minimum value for centiMorgan to import
 
 ![Select center person](./indiv.png "Center person")
 
@@ -54,3 +56,7 @@ Be Careful if the key is wrong the addon is turning havoc
 ## The Result
 
 After the import there s one individual created for each match.  And there s one association with the center person that contains data compatible with the dnasegment addon.
+
+## Warning for the FTDNA Import
+
+As there s no unique key for the FTDNA I have used the name of match. In case of homonym you must manually split the result person in two individuals.
