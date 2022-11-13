@@ -145,32 +145,50 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
         return (sourcesgeneanet,sourcesmyheritage,sourcesFTDNA)
 
 
+    def nbline(self,fichier):
+        with open (fichier,'r') as mon_fichier:
+            num=len(mon_fichier.readlines())
+        return num
+
+     
     def parsefile(self,filetype):
         MYLISTE=defaultdict(list)
         MYSEG=defaultdict(list)
         num  = 0
         if filetype == "MyHeritage":
             listefile = self.myheritagelistefile
+            numlistefile=self.nbline(self.myheritagelistefile)
             segmentfile = self.myheritagesegmentfile
+            numsegmentfile=self.nbline(self.myheritagesegmentfile)
             attribute=self.MyHeritageMatchID
             citationtype="MyHeritage"
             myherownid = self.myhermatchid
         elif filetype == "Geneanet":
             listefile = self.geneanetlistefile
+            numlistefile=self.nbline(self.geneanetlistefile)
             segmentfile = self.geneanetsegmentfile
+            numsegmentfile=self.nbline(self.geneanetsegmentfile)
             attribute=self.GeneanetMatchID
             citationtype="Geneanet"
         elif filetype == "FTDNA":
             listefile = self.FTDNAlistefile
+            numlistefile=self.nbline(self.FTDNAlistefile)
             segmentfile = self.FTDNAsegmentfile
+            numsegmentfile=self.nbline(self.FTDNAsegmentfile)
             attribute=self.FTDNAMatchID
             citationtype="FTDNA"
         try:
+            numline=0
             with DbTxn(_("ADNMatch import"), self.db, batch=True) as self.trans:
                 
                 with open(listefile, newline='') as myfile:
+                    message = "Read " + filetype + " List File"
+                    progress = ProgressMeter(_( message ), can_cancel=False)
+                    length = numlistefile
+                    progress.set_pass(_(message),length)
                     cor = csv.reader(myfile)
                     for L in cor:
+                        progress.step()
                         if num:
                             if L:
                                 long=0.0
@@ -195,10 +213,16 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                                     MYLISTE[ID]=L
                         else:
                             num = 1
+                    progress.close()
                 num  = 0
                 with open(segmentfile, newline='') as myfile2:
                     seg = csv.reader(myfile2)
+                    message = "Read " + filetype + " Segment File"
+                    progress = ProgressMeter(_( message ), can_cancel=False)
+                    length = numsegmentfile
+                    progress.set_pass(_(message),length)
                     for L in seg:
+                        progress.step()
                         if num:
                             if L:
                                 if filetype == "Geneanet":
@@ -226,7 +250,13 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                                 MYSEG[ID].append((chrom,deb,fin,longueur,numsnp))
                         else:
                             num = 1
+                    progress.close()
+                message = "Importing " + filetype + " Data"
+                progress = ProgressMeter(_( message ), can_cancel=False)
+                length = len(MYLISTE.keys())
+                progress.set_pass(_(message),length)
                 for ID in MYLISTE.keys():
+                    progress.step
                     self.person=self.People[ID]
                     self.create_or_update_attrs(self.person,self.db,ID,MYLISTE)
                     assoc=False
@@ -248,6 +278,7 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
                                 texte = texto
                         self.add_assoc(self.person,assocvalue,ID,citationtype,texte)
                         self.db.commit_person(self.person,self.trans)
+                progress.close()
 
         except EnvironmentError as err:
             user.notify_error(_("%s could not be opened\n") % filename, str(err))
