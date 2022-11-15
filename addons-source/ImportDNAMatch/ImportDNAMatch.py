@@ -19,7 +19,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
-# $Id: ImportADNMatchTool.py 1739 2013-04-21 00:46:48Z jralls $
+# $Id: ImportDNAMatchTool.py 1739 2013-04-21 00:46:48Z jralls $
 
 "Set Private Tool"
 
@@ -62,10 +62,10 @@ LOG = logging.getLogger(".importadnmatch")
 # Tool Classes
 #
 #-------------------------------------------------
-class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
+class ImportDNAMatchTool(PluginWindows.ToolManagedWindowBatch):
 
     def get_title(self):
-        return _("Import match ADN")
+        return _("Import match DNA")
 
     def run(self):
         self.MyHeritageMatchID="MyHeritageMatchID"
@@ -179,7 +179,7 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
             citationtype="FTDNA"
         try:
             numline=0
-            with DbTxn(_("ADNMatch import"), self.db, batch=True) as self.trans:
+            with DbTxn(_("DNAMatch import"), self.db, batch=True) as self.trans:
                 
                 with open(listefile, newline='') as myfile:
                     message = "Read " + filetype + " List File"
@@ -475,7 +475,7 @@ class ImportADNMatchTool(PluginWindows.ToolManagedWindowBatch):
 #
 # ----------------------------------------------------------------------------
 
-class ImportADNMatchOptions(MenuToolOptions):
+class ImportDNAMatchOptions(MenuToolOptions):
     """ Set Attribute options  """
     def __init__(self, name, person_id=None, dbstate=None):
         MenuToolOptions.__init__(self, name, person_id, dbstate)
