@@ -47,7 +47,7 @@ from gramps.gui.plug.export import WriterOptionBox
 from gramps.gen.errors import DatabaseError
 from gramps.gen.lib.date import Today
 from gramps.gen.lib import (EventRoleType, FamilyRelType, Citation, EventType,Date, \
- PlaceType,Person, AttributeType, NameType, NoteType)
+ PlaceType,Person, AttributeType, NameType, NoteType, ChildRefType)
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.file import media_path_full, media_path, relative_path
 from gramps.gen.utils.location import get_location_list
@@ -755,6 +755,60 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
 #                    self._writeln(level+1, 'FILE', url.get_path(), limit=255)
 #        else:
 #            return
+
+    
+
+    def _child_families(self, person):
+        """
+        Write the Gramps ID as the XREF for each family in which the person
+        is listed as a child.
+        """
+
+        # get the list of familes from the handle list
+        family_list = [self.dbase.get_family_from_handle(hndl)
+                       for hndl in person.get_parent_family_handle_list()]
+
+        for family in family_list:
+            if family:
+                self._writeln(1, 'FAMC', '@%s@' % family.get_gramps_id())
+                for child in family.get_child_ref_list():
+                    if child.get_reference_handle() == person.get_handle():
+                        if child.frel == ChildRefType.ADOPTED and \
+                                child.mrel == ChildRefType.ADOPTED:
+                            self._writeln(2, 'PEDI adopted')
+                        elif child.frel == ChildRefType.BIRTH and \
+                                child.mrel == ChildRefType.BIRTH:
+                            self._writeln(2, 'PEDI birth')
+                        elif child.frel == ChildRefType.STEPCHILD and \
+                                child.mrel == ChildRefType.STEPCHILD:
+                            self._writeln(2, 'PEDI stepchild')
+                        elif child.frel == ChildRefType.FOSTER and \
+                                child.mrel == ChildRefType.FOSTER:
+                            self._writeln(2, 'PEDI foster')
+                        elif child.frel == child.mrel:
+                            self._writeln(2, 'PEDI %s' % child.frel.xml_str())
+                        else:
+                            self._writeln(
+                                2, '_FREL %s' % PEDIGREE_TYPES.get(
+                                    child.frel.value, child.frel.xml_str()))
+                            self._writeln(
+                                2, '_MREL %s' % PEDIGREE_TYPES.get(
+                                    child.mrel.value, child.mrel.xml_str()))
+                        for citation_hdl in child.get_citation_list():
+                            citation = self.dbase.get_citation_from_handle(citation_hdl)
+                            result = "Source Filiation: "
+                            src_handle = citation.get_reference_handle()
+                            if src_handle is None:
+                                continue
+                            src = self.dbase.get_source_from_handle(src_handle)
+                            result = result + src.get_title()
+                            if src is None:
+                                continue
+                            if citation.get_page() != "":
+                                result = result + " : Page " + citation.get_page()[0:248] 
+                            self._writeln(1, 'NOTE %s' % result)
+
+
 
     def _process_family_event(self, event, event_ref):
         """
