@@ -795,17 +795,23 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                 2, '_MREL %s' % PEDIGREE_TYPES.get(
                                     child.mrel.value, child.mrel.xml_str()))
                         for citation_hdl in child.get_citation_list():
+                            result = "<B>" + _("Source Filiation") + " :</B><BR> "
                             citation = self.dbase.get_citation_from_handle(citation_hdl)
-                            result = "Source Filiation: "
                             src_handle = citation.get_reference_handle()
                             if src_handle is None:
                                 continue
                             src = self.dbase.get_source_from_handle(src_handle)
-                            result = result + src.get_title()
                             if src is None:
                                 continue
+                            if src.get_title():
+                                result = result + "<I>" + _("Title") + "</I> " + src.get_title() + "<BR>"
+                            if src.get_author():
+                                result = result + "<I>" + _("Author") + "</I> " + src.get_author() + "<BR>"
+                            if src.get_publication_info():
+                                result = result + "<I>" + _("Publication Info") + "</I> " + src.get_publication_info() + "<BR>"
                             if citation.get_page() != "":
-                                result = result + " : Page " + citation.get_page()[0:248] 
+                                result = result + "<I>" + _("Page") + "</I> : " + citation.get_page()[0:248] 
+                            result = result + "<BR>"
                             self._writeln(1, 'NOTE %s' % result)
 
 
