@@ -115,6 +115,7 @@ CONFIG.register("preferences.anychar", True)
 CONFIG.register("preferences.citattr", True)
 CONFIG.register("preferences.inccensus", True)
 CONFIG.register("preferences.urlshort", True)
+CONFIG.register("preferences.parentsrc", True)
 CONFIG.register("preferences.altname", True)
 CONFIG.register("preferences.placegeneanet", True)
 CONFIG.register("preferences.ancplacename", True)
@@ -279,6 +280,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.citattr = option_box.citattr
             self.inccensus = option_box.inccensus
             self.urlshort = option_box.urlshort
+            self.parentsrc = option_box.parentsrc
             self.altname = option_box.altname
             self.placegeneanet = option_box.placegeneanet
             self.ancplacename = option_box.ancplacename
@@ -299,6 +301,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.citattr = 1
             self.inccensus = 1
             self.urlshort = 1
+            self.parentsrc = 1
             self.altname = 0
             self.placegeneanet = 0
             self.ancplacename = 0
@@ -794,25 +797,26 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                             self._writeln(
                                 2, '_MREL %s' % PEDIGREE_TYPES.get(
                                     child.mrel.value, child.mrel.xml_str()))
-                        for citation_hdl in child.get_citation_list():
-                            result = "<B>" + _("Source Filiation") + " :</B><BR> "
-                            citation = self.dbase.get_citation_from_handle(citation_hdl)
-                            src_handle = citation.get_reference_handle()
-                            if src_handle is None:
-                                continue
-                            src = self.dbase.get_source_from_handle(src_handle)
-                            if src is None:
-                                continue
-                            if src.get_title():
-                                result = result + "<I>" + _("Title") + "</I> " + src.get_title() + "<BR>"
-                            if src.get_author():
-                                result = result + "<I>" + _("Author") + "</I> " + src.get_author() + "<BR>"
-                            if src.get_publication_info():
-                                result = result + "<I>" + _("Publication Info") + "</I> " + src.get_publication_info() + "<BR>"
-                            if citation.get_page() != "":
-                                result = result + "<I>" + _("Page") + "</I> : " + citation.get_page()[0:248] 
-                            result = result + "<BR>"
-                            self._writeln(1, 'NOTE %s' % result)
+                        if self.parentsrc:
+                            for citation_hdl in child.get_citation_list():
+                                result = "<B>" + _("Source Filiation") + " :</B><BR> "
+                                citation = self.dbase.get_citation_from_handle(citation_hdl)
+                                src_handle = citation.get_reference_handle()
+                                if src_handle is None:
+                                    continue
+                                src = self.dbase.get_source_from_handle(src_handle)
+                                if src is None:
+                                    continue
+                                if src.get_title():
+                                    result = result + "<I>" + _("Title") + "</I> " + src.get_title() + "<BR>"
+                                if src.get_author():
+                                    result = result + "<I>" + _("Author") + "</I> " + src.get_author() + "<BR>"
+                                if src.get_publication_info():
+                                    result = result + "<I>" + _("Publication Info") + "</I> " + src.get_publication_info() + "<BR>"
+                                if citation.get_page() != "":
+                                    result = result + "<I>" + _("Page") + "</I> : " + citation.get_page()[0:248] 
+                                result = result + "<BR>"
+                                self._writeln(1, 'NOTE %s' % result)
 
 
 
@@ -1552,6 +1556,8 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.inccensus_check = None
         self.urlshort = CONFIG.get("preferences.urlshort")
         self.urlshort_check = None
+        self.parentsrc = CONFIG.get("preferences.parentsrc")
+        self.parentsrc_check = None
 
     def get_option_box(self):
         option_box = super(GedcomWriterOptionBox, self).get_option_box()
@@ -1569,6 +1575,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.citattr_check = Gtk.CheckButton(_("Export of attributes of citation"))
         self.inccensus_check = Gtk.CheckButton(_("Include Census information for people"))
         self.urlshort_check = Gtk.CheckButton(_("Title instead of url for links"))
+        self.parentsrc_check = Gtk.CheckButton(_("Include Parental Source as Notes"))
         self.altname_check = Gtk.CheckButton(_("Display alternative name for place"))
         self.placegeneanet_check = Gtk.CheckButton(_("Geneanet format place"))
         self.ancplacename_check = Gtk.CheckButton(_("Display place name at the time"))
@@ -1587,6 +1594,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.citattr_check.set_active(CONFIG.get("preferences.citattr"))
         self.inccensus_check.set_active(CONFIG.get("preferences.inccensus"))
         self.urlshort_check.set_active(CONFIG.get("preferences.urlshort"))
+        self.parentsrc_check.set_active(CONFIG.get("preferences.parentsrc"))
         self.altname_check.set_active(CONFIG.get("preferences.altname"))
         self.placegeneanet_check.set_active(CONFIG.get("preferences.placegeneanet"))
         self.ancplacename_check.set_active(CONFIG.get("preferences.ancplacename"))
@@ -1606,6 +1614,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         option_box.pack_start(self.citattr_check, False, False, 0)
         option_box.pack_start(self.inccensus_check, False, False, 0)
         option_box.pack_start(self.urlshort_check, False, False, 0)
+        option_box.pack_start(self.parentsrc_check, False, False, 0)
         option_box.pack_start(self.altname_check, False, False, 0)
         option_box.pack_start(self.placegeneanet_check, False, False, 0)
         option_box.pack_start(self.ancplacename_check, False, False, 0)
@@ -1643,6 +1652,8 @@ class GedcomWriterOptionBox(WriterOptionBox):
             self.inccensus = self.inccensus_check.get_active()
         if self.urlshort_check:
             self.urlshort = self.urlshort_check.get_active()
+        if self.parentsrc_check:
+            self.parentsrc = self.parentsrc_check.get_active()
         if self.altname_check:
             self.altname = self.altname_check.get_active()
         if self.placegeneanet_check:
@@ -1665,6 +1676,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         CONFIG.set("preferences.citattr" , self.citattr)
         CONFIG.set("preferences.inccensus" , self.inccensus)
         CONFIG.set("preferences.urlshort" , self.urlshort)
+        CONFIG.set("preferences.parentsrc" , self.parentsrc)
         CONFIG.set("preferences.altname" , self.altname)
         CONFIG.set("preferences.placegeneanet" , self.placegeneanet)
         CONFIG.set("preferences.ancplacename" , self.ancplacename)
