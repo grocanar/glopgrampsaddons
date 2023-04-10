@@ -55,8 +55,9 @@ from gramps.gen.lib import (Attribute, AttributeType, ChildRef, Citation,
 from gramps.gen.db import DbTxn
 from html.entities import name2codepoint
 
-_date_parse = re.compile(
-    r'([kmes~?<>]+)?([0-9/]+)([J|H|F])?(\.\.)?([0-9/]+)?([J|H|F])?')
+#_date_parse = re.compile(
+#    r'([kmes~?<>]+)?([0-9/]+)([J|H|F])?(\.\.)?([0-9/]+)?([J|H|F])?')
+_date_parse = re.compile(r'([kmes~?<>]+)?([0-9/]+)([J|H|F])?((\.\.)|(\|))?([kmes~?<>]+)?([0-9/]+)?([J|H|F])?')
 _text_parse = re.compile(r'0\((.*)\)')
 
 _mod_map = {
@@ -880,6 +881,7 @@ class GeneWebParser:
         return (idx,person)
 
     def parse_date(self,field):
+        support=True
         if field == "0":
             return None
         date = Date()
@@ -894,24 +896,36 @@ class GeneWebParser:
         if matches:
             groups = matches.groups()
             mod = _mod_map.get(groups[0],Date.MOD_NONE)
+            print(field)
+            print(groups[3])
+            print(groups[5])
+            print(groups[6])
+            print(groups[7])
             if groups[3] == "..":
                 mod = Date.MOD_SPAN
-                cal2 = _cal_map.get(groups[5],Date.CAL_GREGORIAN)
-                sub2 = self.sub_date(groups[4])
+                cal2 = _cal_map.get(groups[8],Date.CAL_GREGORIAN)
+                sub2 = self.sub_date(groups[7])
+            elif groups[3] == "|":
+                cal2 = _cal_map.get(groups[8],Date.CAL_GREGORIAN)
+                sub2 = (0,"format ou non supporte",0)
+                support = False
             else:
                 sub2 = (0,0,0)
             cal1 = _cal_map.get(groups[2],Date.CAL_GREGORIAN)
             sub1 = self.sub_date(groups[1])
-            try:
-                date.set(Date.QUAL_NONE,mod, cal1,
+            if support:
+                try:
+                    date.set(Date.QUAL_NONE,mod, cal1,
                          (sub1[0],sub1[1],sub1[2],0,sub2[0],sub2[1],sub2[2],0))
-            except DateError as e:
-                # TRANSLATORS: leave the {date} and {gw_snippet} untranslated
-                # in the format string, but you may re-order them if needed.
-                LOG.warning(_(
-                    "Invalid date {date} in {gw_snippet}, "
-                    "preserving date as text."
-                    ).format(date=e.date.__dict__, gw_snippet=field))
+                except DateError as e:
+                    # TRANSLATORS: leave the {date} and {gw_snippet} untranslated
+                    # in the format string, but you may re-order them if needed.
+                    LOG.warning(_(
+                        "Invalid date {date} in {gw_snippet}, "
+                        "preserving date as text."
+                        ).format(date=e.date.__dict__, gw_snippet=field))
+                    date.set(modifier=Date.MOD_TEXTONLY, text=field)
+            else:
                 date.set(modifier=Date.MOD_TEXTONLY, text=field)
             return date
         else:

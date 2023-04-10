@@ -127,3 +127,9 @@ msgstr "Titre"
 
 msgid "Display Extended Title"
 msgstr "Afficher les titres étendus"
+
+msgid "Publication Info"
+msgstr "Informations de Publication"
+
+msgid "Include Parental Source as Notes"
+msgstr "Ajouter les sources de filiations comme des Notes"

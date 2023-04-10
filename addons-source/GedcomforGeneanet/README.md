@@ -22,6 +22,7 @@ Ce greffon est une "amélioration" de l'export gedcom de Geneanet. Il apporte le
 * Indication des noms alternatifs des lieux
 * Suppression de la structure adresse optionnelle
 * Gestion de l'affichage des titres de noblesses
+* Ajout des sources de filiations comme des Notes de l'individu
 
 
 ## Installation
@@ -95,3 +96,7 @@ La norme Gedcom permet l'inclusion d'une structure adresse optioennelle pour les
 ### Gestion des titres de noblesse
 
 Dans l'affichage de geneanet on pard un certain nombres d'information et le titre n'apparait pas dans la chronologie. Pour avoir un affichage plus clair et plus complet je crée a la voléé un evenement de type titre qui reprend de façon plus complète les informations contenues dans l'évenement titre de noblesse.
+
+### Ajout des sources de filiations comme des Notes de l'individu
+
+GRAMPS permet de mettre une source concernant la filiation d'une personne. Cela est intéréssant quand on n'a pas d'actes de naissance ou de baptème mais qu'on a une source permettant d'établir la filiation comme un testament. Or cela n'est pas prévu dans le GEDCOM. Cette option permet de rajouter une Note à l individu.
