@@ -95,6 +95,13 @@ QUALITY_MAP = {
     Citation.CONF_LOW       : "0",
     Citation.CONF_VERY_LOW  : "0",
 }
+PEDIGREE_TYPES = {
+    ChildRefType.BIRTH    : 'birth',
+    ChildRefType.STEPCHILD: 'Step',
+    ChildRefType.ADOPTED  : 'Adopted',
+    ChildRefType.FOSTER   : 'Foster',
+}
+
 NEEDS_PARAMETER = set(
     ["CAST", "DSCR", "EDUC", "IDNO", "NATI", "NCHI",
      "NMR", "OCCU", "PROP", "RELI", "SSN", "TITL"])
