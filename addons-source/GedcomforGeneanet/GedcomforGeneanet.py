@@ -956,7 +956,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                 else:
                                     self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
                                     self._writeln(level+1, "TYPE", "INDI")
-                                    self._writeln(level+1, "RELA", "Witness")
+                                    self._writeln(level+1, "RELA", "Other")
                                     if self.extended_role:
                                         if role:
                                             self._writeln(level+1, "NOTE", '\xA0%s' % EventRoleType._DATAMAP[rol][1])
@@ -1084,7 +1084,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                 else:
                                     self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
                                     self._writeln(level+1, "TYPE", "INDI")
-                                    self._writeln(level+1, "RELA", "Witness")
+                                    self._writeln(level+1, "RELA", "Other")
                                     if self.extended_role:
                                         if role:
                                             self._writeln(level+1, "NOTE", '\xA0%s' % EventRoleType._DATAMAP[rol][1])
@@ -1252,7 +1252,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                     else:
                                         self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
                                         self._writeln(level+1, "TYPE", "INDI")
-                                        self._writeln(level+1, "RELA", "Witness")
+                                        self._writeln(level+1, "RELA", "Other")
                                         if self.extended_role:
                                             if role:
                                                 self._writeln(level+1, "NOTE", '\xA0%s' % EventRoleType._DATAMAP[rol][1])
