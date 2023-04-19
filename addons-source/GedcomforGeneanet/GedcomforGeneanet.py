@@ -1603,12 +1603,6 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         self.gedcom_file.close()
         if self.zip:
             self.zipfile.close()
-        filenamerec = filename + ".rec"
-        ret2 = self.write_rec_file(filenamerec)
-        filenamestar = filename + ".star"
-        ret2 = self.write_star_file(filenamestar)
-        filenamecous = filename + ".cous"
-        ret2 = self.write_cous_file(filenamecous)
         return True
 
     def get_parenty(self, relations):
