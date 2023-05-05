@@ -1681,7 +1681,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                         all_families=True,
                         all_dist=True,
                         only_birth=False)
-                        LOG.debug"calcul parenty ")
+                        LOG.debug("calcul parenty ")
                         LOG.debug(common)
                         (parenty,rel) = self.get_parenty(common)
                         LOG.debug("parenty2 ",parenty)
