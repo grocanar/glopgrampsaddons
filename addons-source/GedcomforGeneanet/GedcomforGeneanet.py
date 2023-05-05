@@ -438,7 +438,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         if self.altname and ancplacename:
             alt_names=self.display_alt_names(place)
             if len(alt_names) > 0:
-                text = _("Alternate name for place ") + '\n'.join(alt_names)
+                text = _("Alternate name for place") + ' \n'.join(alt_names)
                 self._writeln(2, 'NOTE' , text )
         else:
             LOG.debug(" PAS PLACENOTE")
@@ -737,9 +737,8 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                 if self.GENEWEBNAME[genewebname]:
                     num = num + 1
                 else:
-                    print(genewebname)
-               #     print(geneweburl)
-                    print(firstname," ",name . get_surname())
+                    LOG.debug(genewebname)
+                    LOG.debug(firstname," ",name . get_surname())
                     NotTrouve = False
                     self.GENEWEBNAME[genewebname] = 1
                     self.GENEWEBURL[handle] = geneweburl
@@ -753,9 +752,8 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             if self.GENEWEBNAME[genewebname]:
                 num = num + 1
             else:
-                print(genewebname)
-               # print(geneweburl)
-                print(firstname," ",name . get_surname())
+                LOG.debug(genewebname)
+                LOG.debug(firstname," ",name . get_surname())
                 self.GENEWEBNAME[genewebname] = 1
                 self.GENEWEBURL[handle] = geneweburl
                 self.GENEWEBPARURL[handle] = genewebparurl
@@ -895,6 +893,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                 2, '_MREL %s' % PEDIGREE_TYPES.get(
                                     child.mrel.value, child.mrel.xml_str()))
                         if self.parentsrc:
+                            result = "<BR>"
                             for citation_hdl in child.get_citation_list():
                                 result = "<B>" + _("Source Filiation") + " :</B><BR> "
                                 citation = self.dbase.get_citation_from_handle(citation_hdl)
@@ -1676,16 +1675,16 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                         phandle = self.person.handle
        #                 self.REC[phandle]=1
                         LOG.debug("TAG trouve %s" % tname)
-                        print("calcul rerlationship ",p1)
+                        LOG.debug("calcul rerlationship ",p1)
                         common, self.msg_list = self.rel_class.get_relationship_distance_new(
                               self.database, self.person, self.home_person,
                         all_families=True,
                         all_dist=True,
                         only_birth=False)
-                        print("calcul parenty ")
-                        print(common)
+                        LOG.debug"calcul parenty ")
+                        LOG.debug(common)
                         (parenty,rel) = self.get_parenty(common)
-                        print("parenty2 ",parenty)
+                        LOG.debug("parenty2 ",parenty)
                         numlinks=len(common)
                         if nametag == 'recploug1946':
                             for event_ref in person.get_event_ref_list():
@@ -1741,7 +1740,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.rec_file.write(msg)
             num = 1
             sortedDict = sorted(self.TIMS.items(), reverse=False,key=lambda kv: float(kv[1]))
-            print(sortedDict)
+            LOG.debug(sortedDict)
             preval=""
             couleur= couleur1
             for k,val in sortedDict:
@@ -1764,7 +1763,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                     msg = "<TR bgcolor=" + couleur +"><TD>" + "<A HREF=\""+ self.GENEWEBURL[phandle] + "\">" + p1 + "</A>" + RES[k]['recploug1946'] + "<TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
                 else:
                     msg = "<TR bgcolor=" + couleur + "><TD>" + p1 + RES[k]['recploug1946'] + "<TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
-                print("NUM %d Nom %s REL %s" % (num,p1,str(self.REL[k])))
+                LOG.debug("NUM %d Nom %s REL %s" % (num,p1,str(self.REL[k])))
                 num = num + 1
                 msg = msg + "</TR>\n"
                 self.rec_file.write(msg)
@@ -1794,7 +1793,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         parentypers=0
         progress = ProgressMeter(_('Export Star'), can_cancel=True)
         length = self.database.get_number_of_people()
-        print("Write ",length)
+        LOG.debug("Write ",length)
         progress.set_pass('star',length)
         for person in self.database.iter_people():
             self.person = person
@@ -1812,7 +1811,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                         p1 = self.person.get_primary_name().get_name()
                         phandle = self.person.handle
        #                 self.REC[phandle]=1
-                        print("TAG trouve %s" , tname)
+                        LOG.debug("TAG trouve %s" , tname)
                         common, self.msg_list = self.rel_class.get_relationship_distance_new(
                               self.database, self.person, self.home_person,
                         all_families=True,
@@ -1820,13 +1819,13 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                         only_birth=False)
                         (parenty,rel) = self.get_parenty(common)
                         numlinks=len(common)
-                        print("TAG parenty trouve %2.6f" , parenty)
+                        LOG.debug("TAG parenty trouve %2.6f" , parenty)
                         if parenty > 0.0:
                             parentypers=parentypers + 1
                             attributes = self.person.get_attribute_list()
                             attributes.sort(key=lambda a: a.get_type().value)
                             result=""
-                            print("TAG parenty inside trouve %2.6f" , parenty)
+                            LOG.debug("TAG parenty inside trouve %2.6f" , parenty)
                             self.PARENTY[phandle]=parenty
                             self.LEN[phandle]=numlinks
                             self.REL[phandle]=rel
@@ -1842,18 +1841,18 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         num=parentypers
         progress.close()
         msg = "= Mes cousins star =\n<BR><BR>"
-        print(msg)
+        LOG.debug(msg)
         self.star_file.write(msg)
         msg = "Cette page donne la liste de mes cousins mondialement connu\n<BR>\n"
-        print(msg)
+        LOG.debug(msg)
         self.star_file.write(msg)
         msg =  "<BR>Nombre total de stars : " + str(num)  + "<BR><BR>\n"
         self.star_file.write(msg)
         sortedDict = sorted(self.PARENTY.items(), reverse=True, key=lambda kv: kv[1])
         num2=len(sortedDict)
-        print(sortedDict)
+        LOG.debug(sortedDict)
         msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>Lien</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TR>"
-        print(" nombre de parente " , num2 )
+        LOG.debug(" nombre de parente " , num2 )
         self.star_file.write(msg)
         for k,val in sortedDict:
             msg = "<TR>"
@@ -1892,7 +1891,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         parentypers=0
         progress = ProgressMeter(_('Export Star'), can_cancel=True)
         length = self.database.get_number_of_people()
-        print("Write ",length)
+        LOG.debug("Write ",length)
         progress.set_pass('star',length)
         for person in self.database.iter_people():
             self.person = person
@@ -1910,26 +1909,22 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                         p1 = self.person.get_primary_name().get_name()
                         phandle = self.person.handle
        #                 self.REC[phandle]=1
-                        print("TAG trouve %s" , tname)
+                        LOG.debug("TAG trouve %s" , tname)
                         common, self.msg_list = self.rel_class.get_relationship_distance_new(
                               self.database, self.person, self.home_person,
                         all_families=True,
                         all_dist=True,
                         only_birth=False)
-                        #print("COMMON ",common)
                         for relation in common:
                             handle=relation[1]
-                            print("HANDLE  ",handle)
                             self.HANDL[self.person.handle].add(handle)
                         (parenty,rel) = self.get_parenty(common)
                         numlinks=len(common)
-                        print("TAG parenty trouve %2.6f" , parenty)
                         if parenty > 0.0:
                             parentypers=parentypers + 1
                             attributes = self.person.get_attribute_list()
                             attributes.sort(key=lambda a: a.get_type().value)
                             result=""
-                            print("TAG parenty inside trouve %2.6f" , parenty)
                             self.PARENTY[phandle]=parenty
                             self.LEN[phandle]=numlinks
                             self.REL[phandle]=rel
@@ -1977,7 +1972,6 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                     if hdl:
                         url = self.GENEWEBURL[hdl]
                         parurl = self.GENEWEBPARURL[hdl]
-                        print("HDL ",hdl)
                         person2 = self.database.get_person_from_handle(hdl)
                         p2 = person2.get_primary_name().get_name()
                         msg = "<TR><TD> <A HREF=\"" + url + "\">" + p2 + "</A></TD><TD><A HREF=\"" + parurl + "\">Lien de parenté</TD></TR>\n"
