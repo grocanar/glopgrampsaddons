@@ -131,7 +131,9 @@ CONFIG.register("preferences.altname", True)
 CONFIG.register("preferences.placegeneanet", True)
 CONFIG.register("preferences.ancplacename", True)
 CONFIG.register("preferences.extendedtitle", True)
+CONFIG.register("preferences.grouptitle", True)
 CONFIG.load()
+GROUPEGENEANET  = "Groupe Geneanet"
 
 #-------------------------------------------------------------------------
 #
@@ -299,6 +301,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.placegeneanet = option_box.placegeneanet
             self.ancplacename = option_box.ancplacename
             self.extendedtitle = option_box.extendedtitle
+            self.grouptitle = option_box.grouptitle
             CONFIG.save()
         else:
             LOG.debug("pas dans OPTION %s")
@@ -320,6 +323,8 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.placegeneanet = 0
             self.ancplacename = 0
             self.extendedtitle = 0
+            self.grouptitle = 0
+            self.title = 0
         self.zipfile = None
 
     def get_filtered_database(self, dbase, progress=None, preview=False):
@@ -1393,7 +1398,9 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
 #pylint: disable=maybe-no-member
                 self._writeln(1, key, value)
                 continue
-
+            if key == GROUPEGENEANET and self.grouptitle:
+                self._writeln(1, 'TITL', value )
+                continue
             if key == "RESN":
                 self._writeln(1, 'RESN')
                 continue
@@ -2060,6 +2067,8 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.ancplacename_check = None
         self.extendedtitle = CONFIG.get("preferences.extendedtitle")
         self.extendedtitle_check = None
+        self.grouptitle = CONFIG.get("preferences.grouptitle")
+        self.grouptitle_check = None
         self.inccensus = CONFIG.get("preferences.inccensus")
         self.inccensus_check = None
         self.urlshort = CONFIG.get("preferences.urlshort")
@@ -2088,6 +2097,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.placegeneanet_check = Gtk.CheckButton(_("Geneanet format place"))
         self.ancplacename_check = Gtk.CheckButton(_("Display place name at the time"))
         self.extendedtitle_check = Gtk.CheckButton(_("Display Extended Title"))
+        self.grouptitle_check = Gtk.CheckButton(_("Create group from attribute"))
         #self.include_witnesses_check.set_active(1)
         self.include_witnesses_check.set_active(CONFIG.get("preferences.include_witnesses"))
         self.include_media_check.set_active(CONFIG.get("preferences.include_media"))
@@ -2107,6 +2117,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.placegeneanet_check.set_active(CONFIG.get("preferences.placegeneanet"))
         self.ancplacename_check.set_active(CONFIG.get("preferences.ancplacename"))
         self.extendedtitle_check.set_active(CONFIG.get("preferences.extendedtitle"))
+        self.grouptitle_check.set_active(CONFIG.get("preferences.grouptitle"))
 
         # Add to gui:
         option_box.pack_start(self.include_witnesses_check, False, False, 0)
@@ -2127,6 +2138,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         option_box.pack_start(self.placegeneanet_check, False, False, 0)
         option_box.pack_start(self.ancplacename_check, False, False, 0)
         option_box.pack_start(self.extendedtitle_check, False, False, 0)
+        option_box.pack_start(self.grouptitle_check, False, False, 0)
         return option_box
 
     def parse_options(self):
@@ -2170,6 +2182,8 @@ class GedcomWriterOptionBox(WriterOptionBox):
             self.ancplacename = self.ancplacename_check.get_active()
         if self.extendedtitle_check:
             self.extendedtitle = self.extendedtitle_check.get_active()
+        if self.grouptitle_check:
+            self.grouptitle = self.grouptitle_check.get_active()
         CONFIG.set("preferences.include_witnesses" , self.include_witnesses )
         CONFIG.set("preferences.include_witnesses" , self.include_witnesses )
         CONFIG.set("preferences.include_media" , self.include_media)
@@ -2189,6 +2203,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         CONFIG.set("preferences.placegeneanet" , self.placegeneanet)
         CONFIG.set("preferences.ancplacename" , self.ancplacename)
         CONFIG.set("preferences.extendedtitle" , self.extendedtitle)
+        CONFIG.set("preferences.grouptitle" , self.grouptitle)
         CONFIG.save()
 
 def export_data(database, filename, user, option_box=None):
