@@ -127,11 +127,13 @@ CONFIG.register("preferences.citattr", True)
 CONFIG.register("preferences.inccensus", True)
 CONFIG.register("preferences.urlshort", True)
 CONFIG.register("preferences.parentsrc", True)
+CONFIG.register("preferences.extprog", True)
 CONFIG.register("preferences.altname", True)
 CONFIG.register("preferences.placegeneanet", True)
 CONFIG.register("preferences.ancplacename", True)
 CONFIG.register("preferences.extendedtitle", True)
 CONFIG.register("preferences.grouptitle", True)
+CONFIG.register("preferences.extprog", True)
 CONFIG.load()
 GROUPEGENEANET  = "Groupe Geneanet"
 
@@ -300,6 +302,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.inccensus = option_box.inccensus
             self.urlshort = option_box.urlshort
             self.parentsrc = option_box.parentsrc
+            self.extprog = option_box.extprog
             self.altname = option_box.altname
             self.placegeneanet = option_box.placegeneanet
             self.ancplacename = option_box.ancplacename
@@ -322,6 +325,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.inccensus = 1
             self.urlshort = 1
             self.parentsrc = 1
+            self.extprog = 1
             self.altname = 0
             self.placegeneanet = 0
             self.ancplacename = 0
@@ -2171,6 +2175,8 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.urlshort_check = None
         self.parentsrc = CONFIG.get("preferences.parentsrc")
         self.parentsrc_check = None
+        self.extprog = CONFIG.get("preferences.extprog")
+        self.extprog_check = None
 
     def get_option_box(self):
         option_box = super(GedcomWriterOptionBox, self).get_option_box()
@@ -2189,6 +2195,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.inccensus_check = Gtk.CheckButton(_("Include Census information for people"))
         self.urlshort_check = Gtk.CheckButton(_("Title instead of url for links"))
         self.parentsrc_check = Gtk.CheckButton(_("Include Parental Source as Notes"))
+        self.extprog_check = Gtk.CheckButton(_("Use aditionnal program"))
         self.altname_check = Gtk.CheckButton(_("Display alternative name for place"))
         self.placegeneanet_check = Gtk.CheckButton(_("Geneanet format place"))
         self.ancplacename_check = Gtk.CheckButton(_("Display place name at the time"))
@@ -2209,6 +2216,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.inccensus_check.set_active(CONFIG.get("preferences.inccensus"))
         self.urlshort_check.set_active(CONFIG.get("preferences.urlshort"))
         self.parentsrc_check.set_active(CONFIG.get("preferences.parentsrc"))
+        self.extprog_check.set_active(CONFIG.get("preferences.extprog"))
         self.altname_check.set_active(CONFIG.get("preferences.altname"))
         self.placegeneanet_check.set_active(CONFIG.get("preferences.placegeneanet"))
         self.ancplacename_check.set_active(CONFIG.get("preferences.ancplacename"))
@@ -2230,6 +2238,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         option_box.pack_start(self.inccensus_check, False, False, 0)
         option_box.pack_start(self.urlshort_check, False, False, 0)
         option_box.pack_start(self.parentsrc_check, False, False, 0)
+        option_box.pack_start(self.extprog_check, False, False, 0)
         option_box.pack_start(self.altname_check, False, False, 0)
         option_box.pack_start(self.placegeneanet_check, False, False, 0)
         option_box.pack_start(self.ancplacename_check, False, False, 0)
@@ -2270,6 +2279,8 @@ class GedcomWriterOptionBox(WriterOptionBox):
             self.urlshort = self.urlshort_check.get_active()
         if self.parentsrc_check:
             self.parentsrc = self.parentsrc_check.get_active()
+        if self.extprog_check:
+            self.extprog = self.extprog_check.get_active()
         if self.altname_check:
             self.altname = self.altname_check.get_active()
         if self.placegeneanet_check:
@@ -2295,6 +2306,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         CONFIG.set("preferences.inccensus" , self.inccensus)
         CONFIG.set("preferences.urlshort" , self.urlshort)
         CONFIG.set("preferences.parentsrc" , self.parentsrc)
+        CONFIG.set("preferences.extprog" , self.extprog)
         CONFIG.set("preferences.altname" , self.altname)
         CONFIG.set("preferences.placegeneanet" , self.placegeneanet)
         CONFIG.set("preferences.ancplacename" , self.ancplacename)
