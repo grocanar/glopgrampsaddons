@@ -278,6 +278,9 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         self.database = database
         super(GedcomWriterforGeneanet, self).__init__(database, user, option_box)
         self.GENEWEBNAME = defaultdict(str)
+        self.OCCU = defaultdict(int)
+        self.GENEWEBNAM = defaultdict(str)
+        self.GENEWEBNA = defaultdict(str)
         self.GENEWEBURL = defaultdict(str)
         self.GENEWEBPARURL = defaultdict(str)
         if option_box:
@@ -326,6 +329,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.grouptitle = 0
             self.title = 0
         self.zipfile = None
+        self.limit = 0
 
     def get_filtered_database(self, dbase, progress=None, preview=False):
         """
@@ -737,31 +741,47 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         if suffix == "":
             while NotTrouve:
                 genewebname = '%s %s.%d' % (surname, firstnam , num) 
-                geneweburl = urlbase + '&p=%s&n=%s&oc=%d' % (firstnameurl , surnameurl ,num) 
+                nam = '%s %s' % (surname, firstnam ) 
+
+          #      geneweburl = urlbase + '&p=%s&n=%s&oc=%d' % (firstnameurl , surnameurl ,num,name) 
+                geneweburl = '[[%s/%s/%s/Fiche de %s]]' %(firstnameurl , surnameurl ,num , nam) 
                 genewebparurl = urlparbase + 'p1=%s&n1=%s&oc1=%d' % (firstnameurl , surnameurl ,num) + "&l=20"
-                if self.GENEWEBNAME[genewebname]:
+                if self.GENEWEBNA[handle]:
+                    return genewebname
+                handle=person.get_handle()
+                if self.GENEWEBNAM[genewebname]:
                     num = num + 1
                 else:
                     LOG.debug(genewebname)
                     LOG.debug(firstname," ",name . get_surname())
                     NotTrouve = False
-                    self.GENEWEBNAME[genewebname] = 1
+                    self.GENEWEBNAM[genewebname] = 1
                     self.GENEWEBURL[handle] = geneweburl
                     self.GENEWEBPARURL[handle] = genewebparurl
+                    self.GENEWEBNAME[handle]=genewebname
+                    self.GENEWEBNA[handle]=genewebname
+                    self.OCCU[handle] = num
             return genewebname
 
         while NotTrouve:
             genewebname = '%s %s_%s.%d' % (surname, firstnam , suffix , num) 
             geneweburl = urlbase + '&p=%s+%s&n=%s&oc=%d' % (firstnameurl , suffix , surnameurl ,num) 
             genewebparurl = urlparbase + 'p1=%s+%s&n1=%s&oc1=%d' % (firstnameurl ,  suffix, surnameurl ,num) + "&l=20"
-            if self.GENEWEBNAME[genewebname]:
+            if self.GENEWEBNA[handle]:
+                return genewebname
+            if self.GENEWEBNAM[genewebname]:
                 num = num + 1
             else:
+                self.OCCU[handle] = num
                 LOG.debug(genewebname)
                 LOG.debug(firstname," ",name . get_surname())
-                self.GENEWEBNAME[genewebname] = 1
+                self.GENEWEBNAM[genewebname] = 1
                 self.GENEWEBURL[handle] = geneweburl
                 self.GENEWEBPARURL[handle] = genewebparurl
+                handle=person.get_handle()
+                self.GENEWEBNAME[handle]=genewebname
+                self.GENEWEBNA[handle]=genewebname
+                self.OCCU[handle] = num
                 NotTrouve = False
         return genewebname
 
@@ -1416,6 +1436,9 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                 continue
             self._note_references(attr.get_note_list(), 2)
             self._source_references(attr.get_citation_list(), 2)
+        gid = person.get_gramps_id()
+        self._writeln(1, 'FACT', gid)
+        self._writeln(2, 'TYPE', 'GRAMPS ID')
 
     def _header(self, filename):
         """
@@ -1575,7 +1598,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                     if link:
                         url=link.group()
                         LOG.debug("deb write gedcom %s : %s  :" % ( str(url) , citattr.value ))
-                        text = "<A HREF=\"" + str(url) + "\" title=\"" + str(url) + "\" target=_blank>" + str(citattr.type) + "</A>"
+                        text = "<A HREF=\"" + str(url) + "\" title=\"" + str(url) + "\" target=_blank rel=noreferrer>" + str(citattr.type) + "</A>"
                         self._writeln(level + 1, "DATA" , text) 
                     else:
                         self._writeln(level + 1, "DATA", str(citattr.type))
@@ -1609,6 +1632,15 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         self.gedcom_file.close()
         if self.zip:
             self.zipfile.close()
+        filenamerec = filename + ".rec"
+        ret2 = self.write_rec_file(filenamerec)
+        filenamestar = filename + ".star"
+        ret2 = self.write_star_file(filenamestar)
+        filenamecous = filename + ".cous"
+        ret2 = self.write_cous_file(filenamecous)
+        filenamelist = filename + ".list"
+        ret2 = self.write_list_file(filenamelist)
+
         return True
 
     def get_parenty(self, relations):
@@ -1651,6 +1683,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
     def _recwrite(self,nametag):
 
         RES=defaultdict(lambda : defaultdict(str))
+        self.ATTRS=defaultdict(lambda : defaultdict(str))
         self.PARENTY= defaultdict(str)
         self.LEN= defaultdict(str)
         self.REL= defaultdict(str)
@@ -1694,6 +1727,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                         LOG.debug("parenty2 ",parenty)
                         numlinks=len(common)
                         if nametag == 'recploug1946':
+                            result=""
                             for event_ref in person.get_event_ref_list():
                                 event = self.database.get_event_from_handle(event_ref.ref)
                                 if not event:
@@ -1703,24 +1737,36 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                         tag = self.database.get_tag_from_handle(tag_handle)
                                         name = tag.get_name()
                                         if name == 'recploug1946':
-                                            result=""
                                             ehandle=int(float.fromhex(event.handle[0:11]))
                                             timst=event.gramps_id
                                             timst=timst.replace('E','')
                                             attrs = event_ref.get_attribute_list()
                                             if len(attrs):
                                                 for attribute in attrs:
-                                                    attr_type = attribute.get_type()
-                                                    attr_val  = attribute.get_value()
+                                                    attr_type = str(attribute.get_type()).strip()
+                                                    attr_val  = str(attribute.get_value())
+                                                    self.ATTRS[phandle][attr_type]=attr_val
                                                     if attr_type == "Rang":
-                                                        clas=str(ehandle) + "." + str (attr_val)
-                                                        self.TIMS[phandle]=float(clas)
+                                                        rang=attr_val
+                                                    if attr_type == "Numéro Foyer":
+                                                        foyer=attr_val
                                                     else:
                                                         if result:
                                                             result = result + "</TD><TD>" + str(attr_val)
                                                         else:
                                                             result = "<TD>" + str(attr_val)
                                                 result= result + "</TD>"
+                                                clas=str(foyer) + "." + str (rang)
+                                                self.TIMS[phandle]=float(clas)
+                                                for cit in event.get_citation_list():
+                                                     cita=self.database.get_citation_from_handle(cit)
+                                                     attrs = cita.get_attribute_list()
+                                                     for attr in attrs:
+                                                        typ = str(attr.get_type()).strip()
+                                                        if typ == "Permalink":
+                                                            attr_val  = str(attr.get_value())
+                                                            self.ATTRS[phandle][typ]=attr_val
+
                             RES[phandle]['recploug1946']=result
                         if parenty > 0.0:
                             parentypers=parentypers + 1
@@ -1740,10 +1786,13 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         if nametag == "recploug1946":
             msg =  "<BR>Nombre total de personnes dans le recensement : " + str(num2)  + "<BR>Nombre total de personnes apparentés : " + str(num)  + "<BR><BR>\n"
             self.rec_file.write(msg)
-            pct = 100.0 * num / num2
+            if num2:
+                pct = 100.0 * num / num2
+            else:
+                pct=0.0
             msg = "<b>" + str(format(pct, '.2f')) + "%</b> de personnes apparentées<BR><BR><BR>\n"
             self.rec_file.write(msg)
-            msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>Nom Recensement</TH><TH>Adresse</TH><TH>Relation</TH><TH>Date Naissance</TH><TH>Nationalité</TH><TH>Profession</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH></tr>\n"
+            msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>Nom Recensement</TH><TH>Section</TH><TH>Adresse</TH><TH>Num Maison</TH><TH>Num Foyer</TH><TH>Relation</TH><TH>Date Naissance</TH><TH>Nationalité</TH><TH>Profession</TH><TH>Permalink</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH></tr>\n"
             self.rec_file.write(msg)
             num = 1
             sortedDict = sorted(self.TIMS.items(), reverse=False,key=lambda kv: float(kv[1]))
@@ -1767,10 +1816,10 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                 p1 = person.get_primary_name().get_name()
                 phandle=k
                 if self.GENEWEBURL[phandle]:
-                    msg = "<TR bgcolor=" + couleur +"><TD>" + "<A HREF=\""+ self.GENEWEBURL[phandle] + "\">" + p1 + "</A>" + RES[k]['recploug1946'] + "<TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
+                    msg = "<TR bgcolor=" + couleur +"><TD>" +  self.GENEWEBURL[phandle] + "</TD><TD>" + self.ATTRS[phandle]['Nom'] + "</TD><TD>" + self.ATTRS[phandle]['Section'] + "</TD><TD>" + self.ATTRS[phandle]['Adresse'] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Maison'] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Foyer'] + "</TD><TD>" + self.ATTRS[phandle]['Relation'] + "</TD><TD>" + self.ATTRS[phandle]['Année de naissance'] + "</TD><TD>" + self.ATTRS[phandle]['Nationalité'] + "</TD><TD>" + self.ATTRS[phandle]['Profession'] + "</TD><TD><A target=\"_blank\" rel=\"noreferrer\" HREF=\"" + self.ATTRS[phandle]['Permalink'] + "\"</A>Lien</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
+
                 else:
-                    msg = "<TR bgcolor=" + couleur + "><TD>" + p1 + RES[k]['recploug1946'] + "<TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
-                LOG.debug("NUM %d Nom %s REL %s" % (num,p1,str(self.REL[k])))
+                    msg = "<TR bgcolor=" + couleur +"><TD>" +  p1 + "</TD><TD>" + self.ATTRS[phandle]['Nom'] + "</TD><TD>" + self.ATTRS[phandle]['Section'] + "</TD><TD>" + self.ATTRS[phandle]['Adresse'] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Maison'] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Foyer'] + "</TD><TD>" + self.ATTRS[phandle]['Relation'] + "</TD><TD>" + self.ATTRS[phandle]['Année de naissance'] + "</TD><TD>" + self.ATTRS[phandle]['Nationalité'] + "</TD><TD>" + self.ATTRS[phandle]['Profession'] + "</TD><TD><A target=\"_blank\" rel=\"noreferrer\" HREF=\"" + self.ATTRS[phandle]['Permalink'] + "\"</A>Lien</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
                 num = num + 1
                 msg = msg + "</TR>\n"
                 self.rec_file.write(msg)
@@ -1873,13 +1922,47 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                 p1 = person.get_primary_name().get_name()
                 msg = msg + "<TD>" + p1 +" </TD>"
             url = self.GENEWEBURL[k]
-            msg = msg + "<TD> <A HREF=\"" + url + "\">Lien</A></TD>" + "<TD>" + str(format(val, '.10f')) +  "</TD><TD>" +str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) +"</TD></TR>\n"
+            msg = msg + "<TD> " + url + "</TD>" + "<TD>" + str(format(val, '.10f')) +  "</TD><TD>" +str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) +"</TD></TR>\n"
             self.star_file.write(msg)
         msg = msg + "</TABLE>"
         self.star_file.write(msg)
         config.set('behavior.generation-depth',self.olddepth)
         config.save
 
+    def pers_dumpdata(self,person):
+
+        msg=person.get_gramps_id()
+        return msg
+
+    def _listwrite(self,nametag):
+#
+        limit=0
+        progress = ProgressMeter(_('Export Star'), can_cancel=True)
+        length = self.database.get_number_of_people()
+        LOG.debug("Write ",length)
+        progress.set_pass('star',length)
+        msg = "= list =\n<BR><BR>"
+        self.list_file.write(msg)
+        msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>GenewebName</TH><TH>url</TH><TH>Data</TH></TR>"
+        self.list_file.write(msg)
+        for person in self.database.iter_people():
+            msg=""
+            progress.step()
+            state = 0
+            p1 = person.get_primary_name().get_name()
+            handle=person.get_handle()
+            data=self.pers_dumpdata(person)
+            url=self.GENEWEBURL[handle]
+            genewebname = self.GENEWEBNAME[handle]
+            msg = msg + "<TR><TD>" + p1 + "</TD><TD>" + url + "</TD>"
+            msg = msg + "<TD>"  + genewebname + "</TD><TD>" + data + "</TD></TR>\n"
+            msg2  = p1 + " : " + genewebname + " : " + data + "\n"
+            self.list2_file.write(msg2)
+            if self.OCCU[handle] >= self.limit:
+                self.list_file.write(msg)
+        progress.close()
+        msg = "</TABLE>"
+        self.list_file.write(msg)
 
     def _couswrite(self,nametag):
 #
@@ -1981,7 +2064,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                         parurl = self.GENEWEBPARURL[hdl]
                         person2 = self.database.get_person_from_handle(hdl)
                         p2 = person2.get_primary_name().get_name()
-                        msg = "<TR><TD> <A HREF=\"" + url + "\">" + p2 + "</A></TD><TD><A HREF=\"" + parurl + "\">Lien de parenté</TD></TR>\n"
+                        msg = "<TR><TD>" + url + "</TD><TD><A HREF=\"" + parurl + "\">Lien de parenté</TD></TR>\n"
                         self.cous_file.write(msg)
         msg =  "</TABLE>"
         self.cous_file.write(msg)
@@ -2009,6 +2092,19 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         nametag="star"
         self._starwrite(nametag=nametag)
         self.star_file.close()
+
+    def write_list_file(self, filename):
+        """
+        Write list of person.
+        """
+
+        self.dirname = os.path.dirname (filename)
+        self.list_file = io.open(filename, "w", encoding='utf-8')
+        filenameall = filename + "all"
+        self.list2_file = io.open(filenameall, "w", encoding='utf-8')
+        nametag="list"
+        self._listwrite(nametag=nametag)
+        self.list_file.close()
 
     def write_cous_file(self, filename):
         """
