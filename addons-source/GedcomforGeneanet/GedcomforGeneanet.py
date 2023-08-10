@@ -69,6 +69,7 @@ from gramps.gen.display.place import displayer as _pd
 from gramps.gen.utils.location import get_main_location
 from gramps.gen.utils.place import conv_lat_lon
 from gramps.gen.display import place
+from GeneanetUtils import PlaceDisplayGeneanet
 
 LOG = logging.getLogger("gedcomforgeneanet")
 
@@ -172,104 +173,6 @@ def event_has_subordinate_data(event, event_ref):
                 event.get_media_list())
     else:
         return False
-
-
-
-class PlaceDisplayGeneanet(place.PlaceDisplay):
-    
-    def __init__(self):
-        super(PlaceDisplayGeneanet,self).__init__()
-
-    def display(self, db, place, date=None, fmt=-1):
-        if not place:
-            return ""
-        if not config.get('preferences.place-auto'):
-            return place.title
-        else:
-            if fmt == -1:
-                fmt = config.get('preferences.place-format')
-            pf = self.place_formats[fmt]
-            lang = pf.language
-            places = get_location_list(db, place, date, lang)
-            visited = [place.handle]
-            postal_code = place.get_code()
-            if not postal_code:
-                place2 =""
-                for placeref in place.placeref_list:
-                    place2 = db.get_place_from_handle(placeref.ref)
-                    if place2:
-                        postal_code = self._find_postal_code(db,place2,visited)
-                        if postal_code:
-                            break
-            return  self._find_populated_place(places,place,postal_code)
-
-    def _find_postal_code(self,db,place,visited):
-        postal_code = place.get_code()
-        if postal_code:
-            return postal_code
-        else:
-            for placeref in place.placeref_list:
-                if placeref.ref not in visited:
-                    place2 = db.get_place_from_handle(placeref.ref)
-                    if place2:
-                        visited.append(place2.handle)
-                        postal_code = self._find_postal_code(db,place2,visited)
-                        if postal_code:
-                            break
-            return postal_code
- 
-    def _find_populated_place(self,places,place,postal_code):
-        populated_place = ""
-        level = 0
-        for index, item in enumerate(places):
-            if int(item[1]) in [PlaceType.NUMBER, PlaceType.BUILDING , PlaceType.FARM , PlaceType.HAMLET, PlaceType.NEIGHBORHOOD , PlaceType.STREET , PlaceType.PARISH , PlaceType.LOCALITY , PlaceType.BOROUGH, PlaceType.UNKNOWN , PlaceType.CUSTOM]:
-                level = 1
-                if populated_place == "":
-                    populated_place = "[ " + item[0]
-                else :
-                    populated_place = populated_place + " - " + item[0] 
-            elif int(item[1]) in [PlaceType.CITY, PlaceType.VILLAGE,
-                            PlaceType.TOWN , PlaceType.MUNICIPALITY]:
-                level = 2
-                if populated_place == "":
-                    populated_place = item[0]
-                else:
-                    populated_place = populated_place + " ] - " + item[0]
-                populated_place = populated_place + ", "  + postal_code
-            elif int(item[1]) in [PlaceType.COUNTY, PlaceType.DEPARTMENT ]:
-                if populated_place == "":
-                    populated_place = item[0]
-                else:
-                    if level == 1:
-                        populated_place = populated_place + " ] - ,, " + item[0]
-                    else:
-                        populated_place = populated_place + ", " + item[0]
-                    level = 3
-            elif int(item[1]) in [PlaceType.STATE, PlaceType.REGION , PlaceType.PROVINCE ]:
-                if populated_place == "":
-                    populated_place = item[0]
-                else:
-                    if level == 1:
-                        populated_place = populated_place + " ] - ,,, " + item[0]
-                    elif level ==  2:
-                        populated_place = populated_place + ",, " + item[0]
-                    else:
-                         populated_place = populated_place + ", " + item[0]
-                    level = 4
-            elif int(item[1]) in [PlaceType.COUNTRY ]:
-                if populated_place == "":
-                    populated_place = item[0]
-                else:
-                    if level == 1:
-                        populated_place = populated_place + " ] - ,,,, " + item[0]
-                    elif level ==  2:
-                        populated_place = populated_place + ",,, " + item[0]
-                    elif level == 3:
-                        populated_place = populated_place + ",, " + item[0]
-                    else:
-                        populated_place = populated_place + ", " + item[0]
-                    level = 5
-        return populated_place
 
 
 class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
