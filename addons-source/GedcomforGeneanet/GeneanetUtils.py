@@ -147,17 +147,16 @@ class PlaceDisplayGeneanet(place.PlaceDisplay):
 class ComputeRelation:
 
     def __init__(self):
+        toto=""
 
     def get_parenty(self, relations):
 
         if not relations or relations[0][0] == -1:
             parenty = 0
-            LOG.debug("pas de parente" )
             return (parenty,"pas de parente")
         pct = 0.0
         num=0
         rel_str=""
-        LOG.debug("DEBUT RELATION")
         self.rel_class = get_relationship_calculator(glocale)
         for relation in relations:
             birth = self.rel_class.only_birth(relation[2])\
@@ -167,7 +166,6 @@ class ComputeRelation:
             dist = distorig + distother
             pct = pct + 1 / 2 ** dist
             num = num + 1
-            #LOG.debug("NUM %d d1 %d d2 %d parenty %2.10f" % ( num, distorig , distother , pct))
             if not rel_str:
                 rel_str = self.rel_class.get_single_relationship_string(
                          distorig, distother,
