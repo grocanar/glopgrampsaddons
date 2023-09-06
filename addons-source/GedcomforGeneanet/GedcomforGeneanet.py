@@ -183,12 +183,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
     def __init__(self, database, user, option_box=None):
         self.database = database
         super(GedcomWriterforGeneanet, self).__init__(database, user, option_box)
-        self.GENEWEBNAME = defaultdict(str)
         self.OCCU = defaultdict(int)
-        self.GENEWEBNAM = defaultdict(str)
-        self.GENEWEBNA = defaultdict(str)
-        self.GENEWEBURL = defaultdict(str)
-        self.GENEWEBPARURL = defaultdict(str)
         if option_box:
             # Already parsed in GedcomWriter
             LOG.debug("dans OPTION %s")
@@ -238,6 +233,12 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.title = 0
         self.zipfile = None
         self.limit = 0
+        if self.extprog:
+            self.GENEWEBNAM = defaultdict(str)
+            self.GENEWEBNAME = defaultdict(str)
+            self.GENEWEBNA = defaultdict(str)
+            self.GENEWEBURL = defaultdict(str)
+            self.GENEWEBPARURL = defaultdict(str)
 
     def get_filtered_database(self, dbase, progress=None, preview=False):
         """
@@ -894,7 +895,8 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                             self._writeln(level+1, "NOTE", '\xA0%s' % EventRoleType._DATAMAP[rol][1])
                                         else:
                                             self._writeln(level+1, "NOTE", '\xA0%s' % str(ref.role))
-                                self.get_geneweb_name(person,person.get_primary_name())
+                                if self.extprog:
+                                    self.get_geneweb_name(person,person.get_primary_name())
                                 self._note_references(ref.get_note_list(), level+1)
                             elif role in [EventRoleType.INFORMANT]:
                                 level = 2
@@ -902,14 +904,16 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                 self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
                                 self._writeln(level+1, "TYPE", "INDI")
                                 self._writeln(level+1, "RELA", "Informant")
-                                self.get_geneweb_name(person,person.get_primary_name())
+                                if self.extprog:
+                                    self.get_geneweb_name(person,person.get_primary_name())
                             elif role in [EventRoleType.WITNESS]:
                                 level = 2
                                 rol = role + 1
                                 self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
                                 self._writeln(level+1, "TYPE", "INDI")
                                 self._writeln(level+1, "RELA", "Witness")
-                                self.get_geneweb_name(person,person.get_primary_name())
+                                if self.extprog:
+                                    self.get_geneweb_name(person,person.get_primary_name())
 
 
     def _sources(self):
@@ -1540,30 +1544,15 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         self.gedcom_file.close()
         if self.zip:
             self.zipfile.close()
-        nametag="recploug1946"
-        filenamerec = filename + ".rec1946"
-        ret2 = self.write_rec_file(nametag,filenamerec)
-        nametag="recploug1936"
-        filenamerec = filename + ".rec1936"
-        ret2 = self.write_rec_file(nametag,filenamerec)
-        nametag="recploug1931"
-        filenamerec = filename + ".rec1931"
-        ret2 = self.write_rec_file(nametag,filenamerec)
-        nametag="recploug1926"
-        filenamerec = filename + ".rec1926"
-        ret2 = self.write_rec_file(nametag,filenamerec)
-        nametag="recploug1921"
-        filenamerec = filename + ".rec1921"
-        ret2 = self.write_rec_file(nametag,filenamerec)
-        nametag="recploug1911"
-        filenamerec = filename + ".rec1911"
-        ret2 = self.write_rec_file(nametag,filenamerec)
-        filenamestar = filename + ".star"
-        ret2 = self.write_star_file(filenamestar)
-        filenamecous = filename + ".cous"
-        ret2 = self.write_cous_file(filenamecous)
-        filenamelist = filename + ".list"
-        ret2 = self.write_list_file(filenamelist)
+        if self.extprog:
+            self.rectag=('recploug1946','recploug1936','recploug1931','recploug1926','recploug1921','recploug1911')
+            ret2 = self.write_rec_file(filename)
+            filenamestar = filename + ".star"
+            ret2 = self.write_star_file(filenamestar)
+            filenamecous = filename + ".cous"
+            ret2 = self.write_cous_file(filenamecous)
+            filenamelist = filename + ".list"
+            ret2 = self.write_list_file(filenamelist)
 
         return True
 
@@ -1575,82 +1564,81 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         MSG['recploug1926'] = "= Recensement 1926=\n<BR><BR>\nCette page donne le recensement pour la commune de Plouguerneau en 1926 et le pourcentage de parenté avec moi meme\n<BR>\n"
         MSG['recploug1921'] = "= Recensement 1921=\n<BR><BR>\nCette page donne le recensement pour la commune de Plouguerneau en 1921 et le pourcentage de parenté avec moi meme\n<BR>\n"
         MSG['recploug1911'] = "= Recensement 1911=\n<BR><BR>\nCette page donne le recensement pour la commune de Plouguerneau en 1911 et le pourcentage de parenté avec moi meme\n<BR>\n"
-        self.rec_file.write(MSG[nametag])
-        msg = "Recensement mis a jour le 26 aout 2923\n"
-        self.rec_file.write(msg)
+        for rectag in nametag:
+             self.rec_file[rectag].write(MSG[nametag])
+             msg = "Recensement mis a jour le 26 aout 2923\n"
+             self.rec_file[rectag].write(msg)
 
     def _recwrite(self,nametag):
 
         RES=defaultdict(lambda : defaultdict(str))
-        self.ATTRS=defaultdict(lambda : defaultdict(str))
+        self.ATTRS=defaultdict(lambda : defaultdict(lambda : defaultdict(str)))
         self.PARENTY= defaultdict(str)
         self.LEN= defaultdict(str)
         self.REL= defaultdict(str)
-        self.TIMS= defaultdict(str)
+        self.TIMS= defaultdict(lambda : defaultdict(str))
         self.home_person = self.database.get_default_person()
         p2 = self.home_person.get_primary_name().get_name()
         parentypers=0
         couleur1="7FD5CE"
         couleur2="D5C17F"
         couleur=couleur1
-        chaine = "Export Census " + nametag
+        chaine = "Export Census " 
         progress = ProgressMeter((chaine), can_cancel=True)
         length = self.database.get_number_of_people()
-        progress.set_pass(nametag,length)
+        progress.set_pass("Census",length)
         self.rel_class = get_relationship_calculator(glocale)
+        numpers=0
         for person in self.database.iter_people():
             self.person = person
+            phandle = self.person.handle
             progress.step()
+            numpers = numpers + 1
             state = 0
             if self.person.handle == self.home_person.handle :
                 next
             else:
                 for tag_handle in person.get_tag_list():
-                    tag = self.database.get_tag_from_handle(tag_handle)
-                    tname = tag.get_name()
-                    if tname == nametag:
+                    tg = self.database.get_tag_from_handle(tag_handle)
+                    tname = tg.get_name()
+                    if tname in nametag:
                         state= 1
                         clas=""
                         p1 = self.person.get_primary_name().get_name()
-                        phandle = self.person.handle
                         LOG.debug("TAG trouve %s" % tname)
-                        LOG.debug("calcul rerlationship ",p1)
-                        common, self.msg_list = self.rel_class.get_relationship_distance_new(
-                              self.database, self.person, self.home_person,
-                        all_families=True,
-                        all_dist=True,
-                        only_birth=False)
-                        LOG.debug("calcul parenty ")
-                        LOG.debug(common)
-                        (parenty,rel) = ComputeRelation.get_parenty(self,common)
-                        LOG.debug("parenty2 ",parenty)
-                        numlinks=len(common)
-                        for event_ref in person.get_event_ref_list():
+                        LOG.debug("personne trouve %s" % p1)
+                        for event_ref in self.person.get_event_ref_list():
                             event = self.database.get_event_from_handle(event_ref.ref)
                             if not event:
                                 continue
                             if event.get_type() == EventType.CENSUS:
-                                for tag_handle in event.get_tag_list():
-                                    tag = self.database.get_tag_from_handle(tag_handle)
-                                    name = tag.get_name()
-                                    if name == nametag:
+                                for t_handle in event.get_tag_list():
+                                    tag = self.database.get_tag_from_handle(t_handle)
+                                    etname = tag.get_name()
+                                    if etname == tname:
                                         attrs = event_ref.get_attribute_list()
                                         rang=0
                                         foyer=0
                                         numero=0
+                                        maison=0
                                         if len(attrs):
                                             for attribute in attrs:
                                                 attr_type = str(attribute.get_type()).strip()
                                                 attr_val  = str(attribute.get_value())
-                                                self.ATTRS[phandle][attr_type]=attr_val
+                                                self.ATTRS[phandle][attr_type][etname]=attr_val
                                                 if attr_type == "Rang":
                                                     rang=attr_val
                                                 if attr_type == "Numéro Foyer":
                                                     foyer=attr_val
+                                                if attr_type == "Numéro Maison":
+                                                    maison=attr_val
                                                 if attr_type == "Numéro":
                                                     numero=attr_val
                                             clas=str(foyer) + "." + str(rang)
-                                            self.TIMS[phandle]=int(numero)
+                                            if etname == "recploug1911":
+                                                self.TIMS[etname][phandle]=1000000*int(maison) + 1000 * int(foyer) + int(numero)
+                                            else:
+                                                self.TIMS[etname][phandle]=int(numero)
                                             for cit in event.get_citation_list():
                                                 cita=self.database.get_citation_from_handle(cit)
                                                 attrs = cita.get_attribute_list()
@@ -1658,74 +1646,88 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                                     typ = str(attr.get_type()).strip()
                                                     if typ == "Permalink":
                                                         attr_val  = str(attr.get_value())
-                                                        self.ATTRS[phandle][typ]=attr_val
+                                                        self.ATTRS[phandle][typ][etname]=attr_val
 
-                        if parenty > 0.0:
-                            parentypers=parentypers + 1
-                            attributes = self.person.get_attribute_list()
-                            attributes.sort(key=lambda a: a.get_type().value)
-                            result=""
-                            self.PARENTY[phandle]=parenty
-                            self.LEN[phandle]=numlinks
-                            self.REL[phandle]=rel
-                        else:
-                            self.PARENTY[phandle]=0
-                            self.LEN[phandle]=0
-                            self.REL[phandle]=""
+                        if not self.PARENTY[phandle]:
+                            LOG.debug("calcul rerlationship ",p1)
+                            common, self.msg_list = self.rel_class.get_relationship_distance_new(
+                                  self.database, self.person, self.home_person,
+                                  all_families=True,
+                                  all_dist=True,
+                                  only_birth=False)
+                            LOG.debug("calcul parenty ")
+                            LOG.debug(common)
+                            (parenty,rel) = ComputeRelation.get_parenty(self,common)
+                            LOG.debug("parenty2 ",parenty)
+                            numlinks=len(common)
+                            if parenty > 0.0:
+                                parentypers=parentypers + 1
+                                print("PARENTYNUM %d NUMPERS %d" % ( parentypers, numpers))
+                                attributes = self.person.get_attribute_list()
+                                attributes.sort(key=lambda a: a.get_type().value)
+                                result=""
+                                self.PARENTY[phandle]=parenty
+                                self.LEN[phandle]=numlinks
+                                self.REL[phandle]=rel
+                            else:
+                                self.PARENTY[phandle]=0
+                                self.LEN[phandle]=0
+                                self.REL[phandle]="pas relié"
         num=parentypers
         progress.close()
-        num2=len(self.TIMS.keys())
-        msg =  "<BR>Nombre total de personnes dans le recensement : " + str(num2)  + "<BR>Nombre total de personnes apparentés : " + str(num)  + "<BR><BR>\n"
-        self.rec_file.write(msg)
-        if num2:
-            pct = 100.0 * num / num2
-        else:
-            pct=0.0
-        msg = "<b>" + str(format(pct, '.2f')) + "%</b> de personnes apparentées<BR><BR><BR>\n"
-        self.rec_file.write(msg)
-        if nametag == "recploug1946":
-            msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>Nom Recensement</TH><TH>Section</TH><TH>Adresse</TH><TH>Num Maison</TH><TH>Num Foyer</TH><TH>Relation</TH><TH>Date Naissance</TH><TH>Nationalité</TH><TH>Profession</TH><TH>Permalink</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH></tr>\n"
-        else:
-            msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>Nom Recensement</TH><TH>Section</TH><TH>Adresse</TH><TH>Num Maison</TH><TH>Num Foyer</TH><TH>Relation</TH><TH>Date Naissance</TH><TH>Lieu Naissance</TH><TH>Nationalité</TH><TH>Profession</TH><TH>Permalink</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH></tr>\n"
-        self.rec_file.write(msg)
-        num = 1
-        sortedDict = sorted(self.TIMS.items(), reverse=False,key=lambda kv: int(kv[1]))
-        LOG.debug(sortedDict)
-        preval=""
-        couleur= couleur1
-        for k,val in sortedDict:
-            valstr=self.ATTRS[k]['Numéro Foyer']
-            if valstr != preval:
-                if couleur == couleur1:
-                    couleur = couleur2
-                else:
-                    couleur = couleur1
-            preval = valstr
-            if k not in self.PARENTY:
-                value = 0
+        for name in nametag:
+            parentypers=0
+            for hdl in self.TIMS[name].keys():
+                if self.LEN[phandle]:
+                    parentypers = parentypers + 1
+            num2=len(self.TIMS[name].keys())
+            msg =  "<BR>Nombre total de personnes dans le recensement : " + str(num2)  + "<BR>Nombre total de personnes apparentés : " + str(parentypers)  + "<BR><BR>\n"
+            self.rec_file[name].write(msg)
+            if num2:
+                pct = 100.0 * parentypers / num2
             else:
-                value=self.PARENTY[k]
-            person = self.database.get_person_from_handle(k)
-            p1 = person.get_primary_name().get_name()
-            phandle=k
-            if nametag == "recploug1946":
-                if self.GENEWEBURL[phandle]:
-                    msg = "<TR bgcolor=" + couleur +"><TD>" +  self.GENEWEBURL[phandle] + "</TD><TD>" + self.ATTRS[phandle]['Nom'] + "</TD><TD>" + self.ATTRS[phandle]['Section'] + "</TD><TD>" + self.ATTRS[phandle]['Adresse'] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Maison'] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Foyer'] + "</TD><TD>"+ self.ATTRS[phandle]['Numéro'] + "</TD><TD>" + self.ATTRS[phandle]['Relation'] + "</TD><TD>" + self.ATTRS[phandle]['Année de naissance'] + "</TD><TD>" + self.ATTRS[phandle]['Nationalité'] + "</TD><TD>" + self.ATTRS[phandle]['Profession'] + "</TD><TD><A target=\"_blank\" rel=\"noreferrer\" HREF=\"" + self.ATTRS[phandle]['Permalink'] + "\"</A>Lien</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
-                else:
-                    msg = "<TR bgcolor=" + couleur +"><TD>" +  p1 + "</TD><TD>" + self.ATTRS[phandle]['Nom'] + "</TD><TD>" + self.ATTRS[phandle]['Section'] + "</TD><TD>" + self.ATTRS[phandle]['Adresse'] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Maison'] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Foyer'] + "</TD><TD>" + self.ATTRS[phandle]['Numéro'] + "</TD><TD>" + self.ATTRS[phandle]['Relation'] + "</TD><TD>" + self.ATTRS[phandle]['Année de naissance'] + "</TD><TD>" + self.ATTRS[phandle]['Nationalité'] + "</TD><TD>" + self.ATTRS[phandle]['Profession'] + "</TD><TD><A target=\"_blank\" rel=\"noreferrer\" HREF=\"" + self.ATTRS[phandle]['Permalink'] + "\"</A>Lien</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
+                pct=0.0
+            msg = "<b>" + str(format(pct, '.2f')) + "%</b> de personnes apparentées<BR><BR><BR>\n"
+            self.rec_file[name].write(msg)
+            if name == "recploug1946":
+                msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>Nom Recensement</TH><TH>Section</TH><TH>Adresse</TH><TH>Num Maison</TH><TH>Num Foyer</TH><TH>Relation</TH><TH>Date Naissance</TH><TH>Nationalité</TH><TH>Profession</TH><TH>Permalink</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH></tr>\n"
             else:
-                if self.GENEWEBURL[phandle]:
-                    msg = "<TR bgcolor=" + couleur +"><TD>" +  self.GENEWEBURL[phandle] + "</TD><TD>" + self.ATTRS[phandle]['Nom'] + "</TD><TD>" + self.ATTRS[phandle]['Section'] + "</TD><TD>" + self.ATTRS[phandle]['Adresse'] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Maison'] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Foyer'] + "</TD><TD>" + self.ATTRS[phandle]['Numéro'] + "</TD><TD>" + self.ATTRS[phandle]['Relation'] + "</TD><TD>" + self.ATTRS[phandle]['Année de naissance'] + "</TD><TD>" + self.ATTRS[phandle]['Lieu de naissance'] + "</TD><TD>" + self.ATTRS[phandle]['Nationalité'] + "</TD><TD>" + self.ATTRS[phandle]['Profession'] + "</TD><TD><A target=\"_blank\" rel=\"noreferrer\" HREF=\"" + self.ATTRS[phandle]['Permalink'] + "\"</A>Lien</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
+                msg = "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>Nom Recensement</TH><TH>Section</TH><TH>Adresse</TH><TH>Num Maison</TH><TH>Num Foyer</TH><TH>Relation</TH><TH>Date Naissance</TH><TH>Lieu Naissance</TH><TH>Nationalité</TH><TH>Profession</TH><TH>Permalink</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH></tr>\n"
+            self.rec_file[name].write(msg)
+            num = 1
+            sortedDict = sorted(self.TIMS[name].items(), reverse=False,key=lambda kv: int(kv[1]))
+            LOG.debug(sortedDict)
+            preval=""
+            couleur= couleur1
+            for k,val in sortedDict:
+                valstr=self.ATTRS[k]['Numéro Foyer'][name]
+                if valstr != preval:
+                    if couleur == couleur1:
+                        couleur = couleur2
+                    else:
+                        couleur = couleur1
+                preval = valstr
+                if k not in self.PARENTY:
+                    value = 0
                 else:
-                    msg = "<TR bgcolor=" + couleur +"><TD>" +  p1 + "</TD><TD>" + self.ATTRS[phandle]['Nom'] + "</TD><TD>" + self.ATTRS[phandle]['Section'] + "</TD><TD>" + self.ATTRS[phandle]['Adresse'] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Maison'] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Foyer'] + "</TD><TD>" + self.ATTRS[phandle]['Numéro'] + "</TD><TD>" + self.ATTRS[phandle]['Relation'] + "</TD><TD>" + self.ATTRS[phandle]['Année de naissance'] + "</TD><TD>" + self.ATTRS[phandle]['Lieu de naissance'] + "</TD><TD>" + self.ATTRS[phandle]['Nationalité'] + "</TD><TD>" + self.ATTRS[phandle]['Profession'] + "</TD><TD><A target=\"_blank\" rel=\"noreferrer\" HREF=\"" + self.ATTRS[phandle]['Permalink'] + "\"</A>Lien</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
-            num = num + 1
-            msg = msg + "</TR>\n"
-            self.rec_file.write(msg)
-        msg = "</TABLE>\n"
-        self.rec_file.write(msg)
-        msg = "Nombre " + str(num) + "\n"
-        self.rec_file.write(msg)
-
+                    value=self.PARENTY[k]
+                person = self.database.get_person_from_handle(k)
+                p1 = person.get_primary_name().get_name()
+                phandle=k
+                if name == "recploug1946":
+                    if self.GENEWEBURL[phandle]:
+                        msg = "<TR bgcolor=" + couleur +"><TD>" +  self.GENEWEBURL[phandle] + "</TD><TD>" + self.ATTRS[phandle]['Nom'][name] + "</TD><TD>" + self.ATTRS[phandle]['Section'][name] + "</TD><TD>" + self.ATTRS[phandle]['Adresse'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Maison'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Foyer'][name] + "</TD><TD>"+ self.ATTRS[phandle]['Numéro'][name] + "</TD><TD>" + self.ATTRS[phandle]['Relation'][name] + "</TD><TD>" + self.ATTRS[phandle]['Année de naissance'][name] + "</TD><TD>" + self.ATTRS[phandle]['Nationalité'][name] + "</TD><TD>" + self.ATTRS[phandle]['Profession'][name] + "</TD><TD><A target=\"_blank\" rel=\"noreferrer\" HREF=\"" + self.ATTRS[phandle]['Permalink'][name] + "\"</A>Lien</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
+                    else:
+                        msg = "<TR bgcolor=" + couleur +"><TD>" +  p1 + "</TD><TD>" + self.ATTRS[phandle]['Nom'][name] + "</TD><TD>" + self.ATTRS[phandle]['Section'][name] + "</TD><TD>" + self.ATTRS[phandle]['Adresse'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Maison'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Foyer'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro'][name] + "</TD><TD>" + self.ATTRS[phandle]['Relation'][name] + "</TD><TD>" + self.ATTRS[phandle]['Année de naissance'][name] + "</TD><TD>" + self.ATTRS[phandle]['Nationalité'][name] + "</TD><TD>" + self.ATTRS[phandle]['Profession'][name] + "</TD><TD><A target=\"_blank\" rel=\"noreferrer\" HREF=\"" + self.ATTRS[phandle]['Permalink'][name] + "\"</A>Lien</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
+                else:
+                    if self.GENEWEBURL[phandle]:
+                        msg = "<TR bgcolor=" + couleur +"><TD>" +  self.GENEWEBURL[phandle] + "</TD><TD>" + self.ATTRS[phandle]['Nom'][name] + "</TD><TD>" + self.ATTRS[phandle]['Section'][name] + "</TD><TD>" + self.ATTRS[phandle]['Adresse'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Maison'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Foyer'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro'][name] + "</TD><TD>" + self.ATTRS[phandle]['Relation'][name] + "</TD><TD>" + self.ATTRS[phandle]['Année de naissance'][name] + "</TD><TD>" + self.ATTRS[phandle]['Lieu de naissance'][name] + "</TD><TD>" + self.ATTRS[phandle]['Nationalité'][name] + "</TD><TD>" + self.ATTRS[phandle]['Profession'][name] + "</TD><TD><A target=\"_blank\" rel=\"noreferrer\" HREF=\"" + self.ATTRS[phandle]['Permalink'][name] + "\"</A>Lien</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
+                    else:
+                        msg = "<TR bgcolor=" + couleur +"><TD>" +  p1 + "</TD><TD>" + self.ATTRS[phandle]['Nom'][name] + "</TD><TD>" + self.ATTRS[phandle]['Section'][name] + "</TD><TD>" + self.ATTRS[phandle]['Adresse'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Maison'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Foyer'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro'][name] + "</TD><TD>" + self.ATTRS[phandle]['Relation'][name] + "</TD><TD>" + self.ATTRS[phandle]['Année de naissance'][name] + "</TD><TD>" + self.ATTRS[phandle]['Lieu de naissance'][name] + "</TD><TD>" + self.ATTRS[phandle]['Nationalité'][name] + "</TD><TD>" + self.ATTRS[phandle]['Profession'][name] + "</TD><TD><A target=\"_blank\" rel=\"noreferrer\" HREF=\"" + self.ATTRS[phandle]['Permalink'][name] + "\"</A>Lien</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
+                msg = msg + "</TR>\n"
+                self.rec_file[name].write(msg)
+            msg = "</TABLE>\n"
+            self.rec_file[name].write(msg)
 
     def _starwrite(self,nametag):
 #
@@ -1968,16 +1970,24 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         self.cous_file.write(msg)
 
 
-    def write_rec_file(self, nametag ,filename):
+    def write_rec_file(self, filename):
         """
         Write the actual GEDCOM file to the specified filename.
         """
+       
+        
+        nametag=self.rectag
+        self.rec_file = defaultdict(str)
 
-        self.dirname = os.path.dirname (filename)
-        self.rec_file = io.open(filename, "w", encoding='utf-8')
-        self._recheader(nametag=nametag)
-        self._recwrite(nametag=nametag)
-        self.rec_file.close()
+        for rectag in nametag:
+            print("NAMETAG ",rectag)
+            filenam = filename + "." + rectag
+            self.rec_file[rectag] = io.open(filenam, "w", encoding='utf-8')
+            print("FILENAME ",filenam)
+        self._recheader(nametag)
+        self._recwrite(nametag)
+        for rectag in nametag:
+            self.rec_file[rectag].close()
 
     def write_star_file(self, filename):
         """
