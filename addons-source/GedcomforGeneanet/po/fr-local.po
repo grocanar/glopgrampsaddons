@@ -133,3 +133,6 @@ msgstr "Informations de Publication"
 
 msgid "Include Parental Source as Notes"
 msgstr "Ajouter les sources de filiations comme des Notes"
+
+msgid "Use aditionnal program"
+msgstr "Utiliser un programme additionnel"
