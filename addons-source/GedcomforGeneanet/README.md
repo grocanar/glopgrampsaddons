@@ -100,3 +100,19 @@ Dans l'affichage de geneanet on pard un certain nombres d'information et le titr
 ### Ajout des sources de filiations comme des Notes de l'individu
 
 GRAMPS permet de mettre une source concernant la filiation d'une personne. Cela est intéréssant quand on n'a pas d'actes de naissance ou de baptème mais qu'on a une source permettant d'établir la filiation comme un testament. Or cela n'est pas prévu dans le GEDCOM. Cette option permet de rajouter une Note à l individu.
+
+### Utiliser un programme additionnel
+
+Cette option permet de lancer une librarie additionnelle. 
+Quand l'option est activée on genère pour chaque individu son lienWii dans un tableau qui est indexé par le handle des individus. 
+Ce tableau est passé en paramètre dans l'appel de la fonction 
+
+```
+self.Extobj.run(filename,self.database,self.GENEWEBURL)
+```
+
+Cette fonction est contenu dans le fichier *ExtProg.py*.
+
+Cela permet par exemple de faire des listes de personne qu'on peut inclure dans la chronique familiale. 
+Un exemple est fourni qui genere une liste de tous les individus de la base. 
+Chacun peut donc adapter ce code à ses besoins. 
