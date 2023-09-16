@@ -33,6 +33,8 @@ import os
 import time
 import io
 import re
+import zipfile
+import logging
 from collections import defaultdict
 
 #------------------------------------------------------------------------
@@ -47,31 +49,27 @@ from gramps.plugins.export import exportgedcom
 from gramps.gui.plug.export import WriterOptionBox
 from gramps.gen.errors import DatabaseError
 from gramps.gen.lib.date import Today
-from gramps.gen.lib import (EventRoleType, FamilyRelType, Citation, EventType,Date, \
+from gramps.gen.lib import (EventRoleType, FamilyRelType, Citation, EventType, \
  PlaceType,Person, AttributeType, NameType, NoteType, ChildRefType)
 from gramps.gen.const import GRAMPS_LOCALE as glocale
 from gramps.gen.utils.file import media_path_full, media_path, relative_path
-from gramps.gen.utils.location import get_location_list
-from gramps.gen.relationship import get_relationship_calculator
-from gramps.gen.const import GRAMPS_LOCALE as glocale
-from gramps.gui.utils import ProgressMeter
 try:
     _trans = glocale.get_addon_translator(__file__)
 except ValueError:
     _trans = glocale.translation
 _ = _trans.gettext
-import zipfile
-import logging
-import datetime
 from gramps.version import VERSION
 from gramps.gen.config import config
 from gramps.gen.display.place import displayer as _pd
 from gramps.gen.utils.location import get_main_location
 from gramps.gen.utils.place import conv_lat_lon
-from gramps.gen.display import place
 from GeneanetUtils import PlaceDisplayGeneanet
-from GeneanetUtils import ComputeRelation
-from ExtProg import Extobj
+try:
+    from ExtProg import Extobj
+except ImportError:
+    IsAbleExtprog=False
+else:
+    IsAbleExtprog=True
 
 LOG = logging.getLogger("gedcomforgeneanet")
 
@@ -234,6 +232,9 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.title = 0
         self.zipfile = None
         self.limit = 0
+        print("EXTPROG avant try %s" % str(self.extprog))
+        if not IsAbleExtprog:
+            self.extprog=0
         if self.extprog:
             self.GENEWEBNAM = defaultdict(str)
             self.GENEWEBNA = defaultdict(str)
