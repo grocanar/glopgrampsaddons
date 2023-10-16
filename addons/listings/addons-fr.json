@@ -4,7 +4,7 @@
 "i": "ParentyReport",
 "t": 0,
 "d": "Report for parenty based on a tag",
-"v": "10.4.2",
+"v": "10.4.3",
 "g": "5.2",
 "s": 3,
 "z": "ParentyReport.addon.tgz"
@@ -14,7 +14,7 @@
 "i": "Import DNAMatches",
 "t": 2,
 "d": "Import DNA match list",
-"v": "0.0.17",
+"v": "0.0.18",
 "g": "5.2",
 "s": 3,
 "z": "ImportDNAMatch.addon.tgz"
@@ -24,7 +24,7 @@
 "i": "Import Geneanet format gwplus",
 "t": 3,
 "d": "Import gwplus from geneanet",
-"v": "0.0.5",
+"v": "0.0.6",
 "g": "5.2",
 "s": 3,
 "z": "ImportGenewebPlus.addon.tgz"
@@ -34,7 +34,7 @@
 "i": "Export GEDCOM for Geneanet",
 "t": 4,
 "d": "Extensions du format courant Gedcom pour un transfert vers G\u00e9n\u00e9anet",
-"v": "2.1.4",
+"v": "2.1.5",
 "g": "5.2",
 "s": 3,
 "z": "GedcomforGeneanet.addon.tgz"
@@ -44,7 +44,7 @@
 "i": "ExportParenty",
 "t": 4,
 "d": "Export Parenty",
-"v": "1.0.3",
+"v": "1.0.4",
 "g": "5.2",
 "s": 3,
 "z": "ExportParenty.addon.tgz"
@@ -54,7 +54,7 @@
 "i": "DateRegular",
 "t": 13,
 "d": "Match Event with Regular Date",
-"v": "1.0.6",
+"v": "1.0.7",
 "g": "5.2",
 "s": 3,
 "z": "DateRegular.addon.tgz"
@@ -64,7 +64,7 @@
 "i": "HasSeveralEvent",
 "t": 13,
 "d": "Correspond aux personnes qui ont plusieurs \u00e9venements uniques",
-"v": "0.0.6",
+"v": "0.0.7",
 "g": "5.2",
 "s": 3,
 "z": "HasSeveral.addon.tgz"
@@ -74,7 +74,7 @@
 "i": "HasTriangulation",
 "t": 13,
 "d": "Matches Person that traingulate wuth two other person",
-"v": "0.0.12",
+"v": "0.0.13",
 "g": "5.2",
 "s": 3,
 "z": "HasTriangulation.addon.tgz"
@@ -84,7 +84,7 @@
 "i": "IsFilleul",
 "t": 13,
 "d": "Matches People with relation Filleul",
-"v": "0.0.11",
+"v": "0.0.12",
 "g": "5.2",
 "s": 3,
 "z": "IsFilleul.addon.tgz"
