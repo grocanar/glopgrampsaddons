@@ -126,6 +126,7 @@ CONFIG.register("preferences.nameus" , False)
 CONFIG.register("preferences.anychar", True)
 CONFIG.register("preferences.citattr", True)
 CONFIG.register("preferences.inccensus", True)
+CONFIG.register("preferences.inccensusplus", True)
 CONFIG.register("preferences.urlshort", True)
 CONFIG.register("preferences.parentsrc", True)
 CONFIG.register("preferences.extprog", True)
@@ -198,6 +199,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.anychar = option_box.anychar
             self.citattr = option_box.citattr
             self.inccensus = option_box.inccensus
+            self.inccensusplus = option_box.inccensusplus
             self.urlshort = option_box.urlshort
             self.parentsrc = option_box.parentsrc
             self.extprog = option_box.extprog
@@ -221,6 +223,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             self.anychar = 1
             self.citattr = 1
             self.inccensus = 1
+            self.inccensusplus = 1
             self.urlshort = 1
             self.parentsrc = 1
             self.extprog = 1
@@ -1270,9 +1273,43 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                     for attr in attrs:
                         typ = str(attr.get_type())
                         val = str(attr.get_value())
-                        LOG.debug("TYPE %s VAL %s" % ( typ , val))
+                        LOG.debug("INCCENSUS TYPE %s VAL %s" % ( typ , val))
                         text = typ + " : " + val
-                        self._writeln(3,'CONT', text )
+                        self._writeln(3,'CONT', text , 255)
+            elif self.inccensusplus:
+                RES= defaultdict(lambda : defaultdict(str))
+                LOG.debug("INCCENSUSPLUS EVENT")
+                for (objclass, hdl) in self.database.find_backlink_handles(
+                    event.handle, ['Person']):
+                    person2 = self.database.get_person_from_handle(hdl)
+                    LOG.debug("INCCENSUSPLUS PERSON2")
+                    if person2:
+                        for ref in person2.get_event_ref_list():
+                            LOG.debug("INCCENSUSPLUS REF")
+                            if ref.ref == event.handle:
+                                LOG.debug("INCCENSUSPLUS REFEGAL")
+                                attrs = ref.get_attribute_list()
+                                if len(attrs):
+                                    for attr in attrs:
+                                        typ = str(attr.get_type())
+                                        val = str(attr.get_value())
+                                        RES[hdl][typ]=val
+                                        LOG.debug("PLUS TYPE %s VAL %s" % ( typ , val))
+                if len(RES.keys()):
+                    heads=1
+                    self._writeln(2, 'NOTE' , '<TABLE border=1>' )
+                    for p in RES.keys():        
+                        msg="<TR>"
+                        header="<TR>"
+                        for typ in RES[p].keys():
+                            if heads:
+                                header=header + "<TH>" + typ + "</TH>"
+                            msg = msg + "<TD>" + RES[p][typ] + "</TD>"
+                        if heads:
+                            self._writeln(3,'CONT', header , 255)
+                            heads=0
+                        self._writeln(3,'CONT', msg , 255)
+                    self._writeln(3, 'CONT </TABLE>' )
         else:
             for attr in event_ref.get_attribute_list():
                 attr_type = attr.get_type()
@@ -1602,6 +1639,8 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.grouptitle_check = None
         self.inccensus = CONFIG.get("preferences.inccensus")
         self.inccensus_check = None
+        self.inccensusplus = CONFIG.get("preferences.inccensusplus")
+        self.inccensusplus_check = None
         self.urlshort = CONFIG.get("preferences.urlshort")
         self.urlshort_check = None
         self.parentsrc = CONFIG.get("preferences.parentsrc")
@@ -1624,6 +1663,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.anychar_check = Gtk.CheckButton(_("Implementation of anychar"))
         self.citattr_check = Gtk.CheckButton(_("Export of attributes of citation"))
         self.inccensus_check = Gtk.CheckButton(_("Include Census information for people"))
+        self.inccensusplus_check = Gtk.CheckButton(_("Census Extended information for people"))
         self.urlshort_check = Gtk.CheckButton(_("Title instead of url for links"))
         self.parentsrc_check = Gtk.CheckButton(_("Include Parental Source as Notes"))
         self.extprog_check = Gtk.CheckButton(_("Use aditionnal program"))
@@ -1645,6 +1685,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         self.anychar_check.set_active(CONFIG.get("preferences.anychar"))
         self.citattr_check.set_active(CONFIG.get("preferences.citattr"))
         self.inccensus_check.set_active(CONFIG.get("preferences.inccensus"))
+        self.inccensusplus_check.set_active(CONFIG.get("preferences.inccensusplus"))
         self.urlshort_check.set_active(CONFIG.get("preferences.urlshort"))
         self.parentsrc_check.set_active(CONFIG.get("preferences.parentsrc"))
         self.extprog_check.set_active(CONFIG.get("preferences.extprog"))
@@ -1667,6 +1708,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         option_box.pack_start(self.anychar_check, False, False, 0)
         option_box.pack_start(self.citattr_check, False, False, 0)
         option_box.pack_start(self.inccensus_check, False, False, 0)
+        option_box.pack_start(self.inccensusplus_check, False, False, 0)
         option_box.pack_start(self.urlshort_check, False, False, 0)
         option_box.pack_start(self.parentsrc_check, False, False, 0)
         option_box.pack_start(self.extprog_check, False, False, 0)
@@ -1706,6 +1748,8 @@ class GedcomWriterOptionBox(WriterOptionBox):
             self.citattr = self.citattr_check.get_active()
         if self.inccensus_check:
             self.inccensus = self.inccensus_check.get_active()
+        if self.inccensusplus_check:
+            self.inccensusplus = self.inccensusplus_check.get_active()
         if self.urlshort_check:
             self.urlshort = self.urlshort_check.get_active()
         if self.parentsrc_check:
@@ -1735,6 +1779,7 @@ class GedcomWriterOptionBox(WriterOptionBox):
         CONFIG.set("preferences.anychar" , self.anychar)
         CONFIG.set("preferences.citattr" , self.citattr)
         CONFIG.set("preferences.inccensus" , self.inccensus)
+        CONFIG.set("preferences.inccensusplus" , self.inccensusplus)
         CONFIG.set("preferences.urlshort" , self.urlshort)
         CONFIG.set("preferences.parentsrc" , self.parentsrc)
         CONFIG.set("preferences.extprog" , self.extprog)

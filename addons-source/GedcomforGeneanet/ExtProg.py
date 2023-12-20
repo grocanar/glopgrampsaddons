@@ -79,6 +79,7 @@ HEAD = {
         'recploug1891' : "= Recensement 1891=\n<BR><BR>\nCette page donne le recensement pour la commune de Plouguerneau en 1891 et le pourcentage de parenté avec moi meme\n<BR>\n",
         'recploug1886' : "= Recensement 1886=\n<BR><BR>\nCette page donne le recensement pour la commune de Plouguerneau en 1886 et le pourcentage de parenté avec moi meme\n<BR>\n",
         'recploug1881' : "= Recensement 1881=\n<BR><BR>\nCette page donne le recensement pour la commune de Plouguerneau en 1881 et le pourcentage de parenté avec moi meme\n<BR>\n"
+        'recploug1876' : "= Recensement 1881=\n<BR><BR>\nCette page donne le recensement pour la commune de Plouguerneau en 1881 et le pourcentage de parenté avec moi meme\n<BR>\n"
         }
 
 TABHEADER = {
@@ -94,6 +95,21 @@ TABHEADER = {
          'recploug1891' :   "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>Nom Recensement</TH><TH>Adresse</TH><TH>Num Maison</TH><TH>Num Foyer</TH><TH>Numéro</TH><TH>Relation</TH><TH>Age</TH><TH>Nationalité</TH><TH>Profession</TH><TH>Permalink</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH></tr>\n",
          'recploug1886' :   "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>Nom Recensement</TH><TH>Adresse</TH><TH>Num Maison</TH><TH>Num Foyer</TH><TH>Numéro</TH><TH>Relation</TH><TH>Age</TH><TH>Nationalité</TH><TH>Profession</TH><TH>Permalink</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH></tr>\n",
          'recploug1881' :   "<TABLE class=\"tabwiki\"><TR><TH>Nom</TH><TH>Nom Recensement</TH><TH>Adresse</TH><TH>Num Maison</TH><TH>Num Foyer</TH><TH>Numéro</TH><TH>Relation</TH><TH>Age</TH><TH>Nationalité</TH><TH>Profession</TH><TH>Permalink</TH><TH>% parenté</TH><TH>Relation la plus proche</TH><TH>Nombre de liens</TH></tr>\n"
+         }
+
+NDXTAB = {
+        'recploug1946' : ('Nom','Section','Adresse','Numéro Maison','Numéro Foyer','Numéro','Relation','Année de naissance','Nationalité','Profession'),
+        'recploug1936' : ('Nom','Section','Adresse','Numéro Maison','Numéro Foyer','Numéro','Relation','Année de naissance','Lieu de naissance','Nationalité','Profession'),
+        'recploug1931' : ('Nom','Section','Adresse','Numéro Maison','Numéro Foyer','Numéro','Relation','Année de naissance','Lieu de naissance','Nationalité','Profession'),
+        'recploug1926' : ('Nom','Section','Adresse','Numéro Maison','Numéro Foyer','Numéro','Relation','Année de naissance','Lieu de naissance','Nationalité','Profession'),
+        'recploug1921' : ('Nom','Section','Adresse','Numéro Maison','Numéro Foyer','Numéro','Relation','Année de naissance','Lieu de naissance','Nationalité','Profession'),
+        'recploug1911' : ('Nom','Section','Adresse','Numéro Maison','Numéro Foyer','Numéro','Relation','Année de naissance','Lieu de naissance','Nationalité','Profession'),
+        'recploug1906' : ('Nom','Section','Adresse','Numéro Maison','Numéro Foyer','Numéro','Relation','Année de naissance','Lieu de naissance','Nationalité','Profession'),
+        'recploug1901' : ('Nom','Section','Adresse','Numéro Maison','Numéro Foyer','Numéro','Relation','Âge','Nationalité','Profession'),
+        'recploug1896' : ('Nom','Adresse','Numéro Maison','Numéro Foyer','Numéro','Relation','Âge','Nationalité','Profession'),
+        'recploug1891' : ('Nom','Adresse','Numéro Maison','Numéro Foyer','Numéro','Relation','Âge','Nationalité','Profession'),
+        'recploug1886' : ('Nom','Adresse','Numéro Maison','Numéro Foyer','Numéro','Relation','Âge','Nationalité','Profession'),
+        'recploug1881' : ('Nom','Adresse','Numéro Maison','Numéro Foyer','Numéro','Relation','Âge','Nationalité','Profession'),
          }
 
 POPTOTAL = {
@@ -274,18 +290,14 @@ class Extobj():
                 person = self.database.get_person_from_handle(k)
                 p1 = person.get_primary_name().get_name()
                 phandle=k
-                if WikiName[phandle]:
-                    pname=WikiName[phandle]
+                if WikiName[k]:
+                    pname=WikiName[k]
                 else:
                     pname=p1
-                if name == "recploug1946":
-                    msg = "<TR bgcolor=" + couleur +"><TD>" +  pname + "</TD><TD>" + self.ATTRS[phandle]['Nom'][name] + "</TD><TD>" + self.ATTRS[phandle]['Section'][name] + "</TD><TD>" + self.ATTRS[phandle]['Adresse'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Maison'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Foyer'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro'][name] + "</TD><TD>" + self.ATTRS[phandle]['Relation'][name] + "</TD><TD>" + self.ATTRS[phandle]['Année de naissance'][name] + "</TD><TD>" + self.ATTRS[phandle]['Nationalité'][name] + "</TD><TD>" + self.ATTRS[phandle]['Profession'][name] + "</TD><TD><A target=\"_blank\" rel=\"noreferrer\" HREF=\"" + self.ATTRS[phandle]['Permalink'][name] + "\"</A>Lien</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
-                elif name == "recploug1901":
-                    msg = "<TR bgcolor=" + couleur +"><TD>" +  pname + "</TD><TD>" + self.ATTRS[phandle]['Nom'][name] + "</TD><TD>" + self.ATTRS[phandle]['Section'][name] + "</TD><TD>" + self.ATTRS[phandle]['Adresse'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Maison'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Foyer'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro'][name] + "</TD><TD>" + self.ATTRS[phandle]['Relation'][name] + "</TD><TD>" + self.ATTRS[phandle]['Âge'][name] + "</TD><TD>" + self.ATTRS[phandle]['Nationalité'][name] + "</TD><TD>" + self.ATTRS[phandle]['Profession'][name] + "</TD><TD><A target=\"_blank\" rel=\"noreferrer\" HREF=\"" + self.ATTRS[phandle]['Permalink'][name] + "\"</A>Lien</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
-                elif name == "recploug1896" or name == "recploug1891" or name == "recploug1886":
-                    msg = "<TR bgcolor=" + couleur +"><TD>" +  pname + "</TD><TD>" + self.ATTRS[phandle]['Nom'][name] + "</TD><TD>" + self.ATTRS[phandle]['Adresse'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Maison'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Foyer'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro'][name] + "</TD><TD>" + self.ATTRS[phandle]['Relation'][name] + "</TD><TD>" + self.ATTRS[phandle]['Âge'][name] + "</TD><TD>" + self.ATTRS[phandle]['Nationalité'][name] + "</TD><TD>" + self.ATTRS[phandle]['Profession'][name] + "</TD><TD><A target=\"_blank\" rel=\"noreferrer\" HREF=\"" + self.ATTRS[phandle]['Permalink'][name] + "\"</A>Lien</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
-                else:
-                    msg = "<TR bgcolor=" + couleur +"><TD>" +  pname + "</TD><TD>" + self.ATTRS[phandle]['Nom'][name] + "</TD><TD>" + self.ATTRS[phandle]['Section'][name] + "</TD><TD>" + self.ATTRS[phandle]['Adresse'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Maison'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro Foyer'][name] + "</TD><TD>" + self.ATTRS[phandle]['Numéro'][name] + "</TD><TD>" + self.ATTRS[phandle]['Relation'][name] + "</TD><TD>" + self.ATTRS[phandle]['Année de naissance'][name] + "</TD><TD>" + self.ATTRS[phandle]['Lieu de naissance'][name] + "</TD><TD>" + self.ATTRS[phandle]['Nationalité'][name] + "</TD><TD>" + self.ATTRS[phandle]['Profession'][name] + "</TD><TD><A target=\"_blank\" rel=\"noreferrer\" HREF=\"" + self.ATTRS[phandle]['Permalink'][name] + "\"</A>Lien</TD><TD>" + str(format(value, '.10f')) + "</TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
+                msg = "<TR bgcolor=" + couleur +"><TD>" +  pname + "</TD>"
+                for attr in NDXTAB[name]:
+                    msg = msg + "<TD>" + self.ATTRS[k][attr][name] + "</TD>"
+                msg = msg + "<TD><A target=\"_blank\" rel=\"noreferre  r\" HREF=\"" + self.ATTRS[k]['Permalink'][name] + "\"</A>Lien</TD><TD>" + str(format(value, '.10f')) + "</  TD><TD>" + str(self.REL[k]) + "</TD><TD>" + str(self.LEN[k]) + "</TD>\n"
                 msg = msg + "</TR>\n"
                 self.rec_file[name].write(msg)
             msg = "</TABLE>\n"
