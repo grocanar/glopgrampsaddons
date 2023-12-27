@@ -1266,17 +1266,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         resultstring = ""
         etype = int(event.get_type())
         if etype == EventType.CENSUS:
-            if self.inccensus:
-                attrs = event_ref.get_attribute_list()
-                if len(attrs):
-                    self._writeln(2, 'NOTE' )
-                    for attr in attrs:
-                        typ = str(attr.get_type())
-                        val = str(attr.get_value())
-                        LOG.debug("INCCENSUS TYPE %s VAL %s" % ( typ , val))
-                        text = typ + " : " + val
-                        self._writeln(3,'CONT', text , 255)
-            elif self.inccensusplus:
+            if self.inccensusplus:
                 RES= defaultdict(lambda : defaultdict(str))
                 LOG.debug("INCCENSUSPLUS EVENT")
                 HEADS=[]
@@ -1317,6 +1307,16 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                             heads=0
                         self._writeln(3,'CONT', msg , 255)
                     self._writeln(3, 'CONT </TABLE>' )
+            elif self.inccensus:
+                attrs = event_ref.get_attribute_list()
+                if len(attrs):
+                    self._writeln(2, 'NOTE' )
+                    for attr in attrs:
+                        typ = str(attr.get_type())
+                        val = str(attr.get_value())
+                        LOG.debug("INCCENSUS TYPE %s VAL %s" % ( typ , val))
+                        text = typ + " : " + val
+                        self._writeln(3,'CONT', text , 255)
         else:
             for attr in event_ref.get_attribute_list():
                 attr_type = attr.get_type()
