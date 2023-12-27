@@ -1279,6 +1279,8 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
             elif self.inccensusplus:
                 RES= defaultdict(lambda : defaultdict(str))
                 LOG.debug("INCCENSUSPLUS EVENT")
+                HEADS=[]
+                RANG=defaultdict(int)
                 for (objclass, hdl) in self.database.find_backlink_handles(
                     event.handle, ['Person']):
                     person2 = self.database.get_person_from_handle(hdl)
@@ -1292,16 +1294,21 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                 if len(attrs):
                                     for attr in attrs:
                                         typ = str(attr.get_type())
+                                        if typ not in HEADS:
+                                            HEADS.append(typ)
                                         val = str(attr.get_value())
+                                        if typ == 'Rang':
+                                            RANG[hdl]=int(val)
                                         RES[hdl][typ]=val
                                         LOG.debug("PLUS TYPE %s VAL %s" % ( typ , val))
                 if len(RES.keys()):
                     heads=1
                     self._writeln(2, 'NOTE' , '<TABLE border=1>' )
-                    for p in RES.keys():        
+                    RANGSORT=dict(sorted(RANG.items(), key=lambda x:x[1]))
+                    for p in RANGSORT.keys():        
                         msg="<TR>"
                         header="<TR>"
-                        for typ in RES[p].keys():
+                        for typ in HEADS:
                             if heads:
                                 header=header + "<TH>" + typ + "</TH>"
                             msg = msg + "<TD>" + RES[p][typ] + "</TD>"
