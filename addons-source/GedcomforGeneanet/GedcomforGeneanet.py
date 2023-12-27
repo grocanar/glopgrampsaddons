@@ -909,6 +909,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                 self._writeln(level+1, "RELA", "Informant")
                                 if self.extprog:
                                     self.get_geneweb_name(person,person.get_primary_name())
+                                self._note_references(ref.get_note_list(), level+1)
                             elif role in [EventRoleType.WITNESS]:
                                 level = 2
                                 rol = role + 1
@@ -917,6 +918,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                 self._writeln(level+1, "RELA", "Witness")
                                 if self.extprog:
                                     self.get_geneweb_name(person,person.get_primary_name())
+                                self._note_references(ref.get_note_list(), level+1)
 
 
     def _sources(self):
@@ -1036,12 +1038,14 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                 self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
                                 self._writeln(level+1, "TYPE", "INDI")
                                 self._writeln(level+1, "RELA", "Informant")
+                                self._note_references(ref.get_note_list(), level+1)
                             elif role in [EventRoleType.WITNESS]:
                                 level = 2
                                 rol = role + 1
                                 self._writeln(level, "ASSO", "@%s@" % person.get_gramps_id())
                                 self._writeln(level+1, "TYPE", "INDI")
                                 self._writeln(level+1, "RELA", "Witness")
+                                self._note_references(ref.get_note_list(), level+1)
 
     def _remaining_events(self, person):
         """
@@ -1204,12 +1208,14 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
                                     self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
                                     self._writeln(level+1, "TYPE", "INDI")
                                     self._writeln(level+1, "RELA", "Informant")
+                                    self._note_references(ref.get_note_list(), level+1)
                                 elif role in [EventRoleType.WITNESS]:
                                     level = 2
                                     rol = role + 1
                                     self._writeln(level, "ASSO", "@%s@" % person2.get_gramps_id())
                                     self._writeln(level+1, "TYPE", "INDI")
                                     self._writeln(level+1, "RELA", "Witness")
+                                    self._note_references(ref.get_note_list(), level+1)
 
         if val == "TITL" and self.extendedtitle:
             descr = event.get_description()
@@ -1435,7 +1441,7 @@ class GedcomWriterforGeneanet(exportgedcom.GedcomWriter):
         time_str = "%02d:%02d:%02d" % (hour, minutes, sec)
         rname = self.dbase.get_researcher().get_name()
         LOG.debug("deb header %d" % self.relativepath)
-        VERS2 = VERSION + "-GedcomforGeneanet-2.1.9"
+        VERS2 = VERSION + "-GedcomforGeneanet-2.1.12"
         self._writeln(0, "HEAD")
         self._writeln(1, "SOUR", "Gramps" )
         self._writeln(2, "VERS", VERS2)
