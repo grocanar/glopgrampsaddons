@@ -78,7 +78,7 @@ HEAD = {
         'recploug1896' : "= Recensement 1896=\n<BR><BR>\nCette page donne le recensement pour la commune de Plouguerneau en 1901 et le pourcentage de parenté avec moi meme\n<BR>\n",
         'recploug1891' : "= Recensement 1891=\n<BR><BR>\nCette page donne le recensement pour la commune de Plouguerneau en 1891 et le pourcentage de parenté avec moi meme\n<BR>\n",
         'recploug1886' : "= Recensement 1886=\n<BR><BR>\nCette page donne le recensement pour la commune de Plouguerneau en 1886 et le pourcentage de parenté avec moi meme\n<BR>\n",
-        'recploug1881' : "= Recensement 1881=\n<BR><BR>\nCette page donne le recensement pour la commune de Plouguerneau en 1881 et le pourcentage de parenté avec moi meme\n<BR>\n"
+        'recploug1881' : "= Recensement 1881=\n<BR><BR>\nCette page donne le recensement pour la commune de Plouguerneau en 1881 et le pourcentage de parenté avec moi meme\n<BR>\n",
         'recploug1876' : "= Recensement 1881=\n<BR><BR>\nCette page donne le recensement pour la commune de Plouguerneau en 1881 et le pourcentage de parenté avec moi meme\n<BR>\n"
         }
 
