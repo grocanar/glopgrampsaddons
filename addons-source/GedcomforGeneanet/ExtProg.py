@@ -614,12 +614,12 @@ class Extobj():
         self.database = database
         self.WikiName = WikiName
 
-        #ret2 = self.write_rec_file(filename,database,WikiName)
-        #filenamestar = filename + ".star"
-        #ret2 = self.write_star_file(filenamestar)
-        #filenamecous = filename + ".cous"
-        #ret2 = self.write_cous_file(filenamecous,database,WikiName)
-        #filenamelist = filename + ".list"
-        #ret2 = self.write_list_file(filenamelist)
+        ret2 = self.write_rec_file(filename,database,WikiName)
+        filenamestar = filename + ".star"
+        ret2 = self.write_star_file(filenamestar)
+        filenamecous = filename + ".cous"
+        ret2 = self.write_cous_file(filenamecous,database,WikiName)
+        filenamelist = filename + ".list"
+        ret2 = self.write_list_file(filenamelist)
 
 
