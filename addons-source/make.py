@@ -4,41 +4,41 @@
 make.py for Gramps addons.
 
 Examples:
-   python3 make.py gramps42 init AddonDirectory
+   python3 make.py init AddonDirectory
 
       Creates the initial directories for the addon.
 
-   python3 make.py gramps42 init AddonDirectory fr
+   python3 make.py init AddonDirectory fr
 
       Creates the initial empty AddonDirectory/po/fr-local.po file
       for the addon.
 
-   python3 make.py gramps42 update AddonDirectory fr
+   python3 make.py update AddonDirectory fr
 
       Updates AddonDirectory/po/fr-local.po with the latest
       translations.
 
-   python3 make.py gramps42 build AddonDirectory
+   python3 make.py build AddonDirectory
 
       Build ../download/AddonDirectory.addon.tgz
 
-   python3 make.py gramps42 build all
+   python3 make.py build all
 
       Build ../download/*.addon.tgz
 
-   python3 make.py gramps42 compile AddonDirectory
-   python3 make.py gramps42 compile all
+   python3 make.py compile AddonDirectory
+   python3 make.py compile all
 
       Compiles AddonDirectory/po/*-local.po and puts the resulting
       .mo file in AddonDirectory/locale/*/LC_MESSAGES/addon.mo
 
-   python3 make.py gramps42 listing AddonDirectory
-   python3 make.py gramps42 listing all
+   python3 make.py listing AddonDirectory
+   python3 make.py listing all
 
-   python3 make.py gramps42 clean
-   python3 make.py gramps42 clean AddonDirectory
+   python3 make.py clean
+   python3 make.py clean AddonDirectory
 
-   python3 make.py gramps42 as-needed
+   python3 make.py as-needed
        Builds the tgz for only addons that have changed, then recreates
        the listings and does cleanup
 """

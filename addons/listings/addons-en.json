@@ -34,7 +34,7 @@
 "i": "Export GEDCOM for Geneanet",
 "t": 4,
 "d": "Extensions to the common GEDCOM format for Geneanet transfert.",
-"v": "2.1.5",
+"v": "2.1.14",
 "g": "5.2",
 "s": 3,
 "z": "GedcomforGeneanet.addon.tgz"
