@@ -16,7 +16,7 @@ Ce greffon est une "amélioration" de l'export gedcom de Geneanet. Il apporte le
 * Suppression du support de la norme anychar du Gedcom 5.5
 * Gestion des noms usuels
 * Export des attributs des citations
-* Export des informations de recensement d'un individu
+* Export des informations de recensement d'un individu avec un format étendu optionnel
 * Export des lieux au format geneanet
 * Indication du nom du lieu à la date de l'événement
 * Indication des noms alternatifs des lieux
@@ -78,6 +78,8 @@ Permet d'exporter les attributs d'une citation. Cela permet par exemple d'indiqu
 ### Export des informations de recensement d'un individu
 
 Permet d'exporter pour un individu les informations dans un recensement sous formes de notes d'évenement.
+Si on sélectionne le format étendu celui va afficher non pas seulement les informations liés à l individu mais les informations de tous les individus du foyer. 
+
 ###  Export des lieux au format geneanet
 Geneanet impose un format pour les noms des lieux non compatible avec gramps. Cet option permet de generer le titre au format geneanet lors de l'export tout en conservant la génération automatique du titre dans GRAMPS.
 

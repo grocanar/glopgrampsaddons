@@ -136,3 +136,6 @@ msgstr "Ajouter les sources de filiations comme des Notes"
 
 msgid "Use aditionnal program"
 msgstr "Utiliser un programme additionnel"
+
+msgid "Census Extended information for people"
+msgstr "Information étendue pour les recensements"
