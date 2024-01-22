@@ -1,4 +1,4 @@
-{"t":'Exporter',"i":'Export GEDCOM for Geneanet',"n":'Export GEDCOM for Geneanet ',"v":'2.1.16',"g":'5.1',"d":'Extensions to the common GEDCOM format for Geneanet transfert.',"z":'GedcomforGeneanet.addon.tgz'}
+{"t":'Exporter',"i":'Export GEDCOM for Geneanet',"n":'Export GEDCOM for Geneanet ',"v":'2.1.19',"g":'5.1',"d":'Extensions to the common GEDCOM format for Geneanet transfert.',"z":'GedcomforGeneanet.addon.tgz'}
 {"t":'Exporter',"i":'ExportParenty',"n":'ExportParenty',"v":'1.0.3',"g":'5.1',"d":'Export Parenty',"z":'ExportParenty.addon.tgz'}
 {"t":'Importer',"i":'Import Geneanet format gwplus',"n":'Import Geneanet format gwplus',"v":'0.0.5',"g":'5.1',"d":'Import gwplus from geneanet',"z":'ImportGenewebPlus.addon.tgz'}
 {"t":'Report',"i":'ParentyReport',"n":'ParentyReport',"v":'10.4.2',"g":'5.1',"d":'Report for parenty based on a tag',"z":'ParentyReport.addon.tgz'}
