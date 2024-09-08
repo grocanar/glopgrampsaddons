@@ -1,0 +1,99 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-16 23:20+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ImportDNAMatch/ImportDNAMatch.gpr.py:3
+msgid "Import DNAMatches"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.gpr.py:4
+msgid "Import DNA match list"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:68
+msgid "Import match DNA"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:99
+#, python-format
+msgid "Person %s is not in the Database"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:116
+msgid "Citation Creation"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:144 ImportDNAMatch/ImportDNAMatch.py:284
+#, python-format
+msgid "%s could not be opened\n"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:182
+msgid "DNAMatch import"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:378 ImportDNAMatch/ImportDNAMatch.py:389
+msgid "Number of Segment"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:381 ImportDNAMatch/ImportDNAMatch.py:392
+#: ImportDNAMatch/ImportDNAMatch.py:400
+msgid "Longest Segment"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:486
+msgid "Person"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:488
+msgid "Center Person"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:489
+msgid "The Person who own the match files"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:491
+msgid "Minimum share segment"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:493
+msgid "MyHeritage"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:497 ImportDNAMatch/ImportDNAMatch.py:513
+#: ImportDNAMatch/ImportDNAMatch.py:527
+msgid "Matching List"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:503 ImportDNAMatch/ImportDNAMatch.py:519
+#: ImportDNAMatch/ImportDNAMatch.py:532
+msgid "Segment List"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:507
+msgid "Unique Key for user"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:509
+msgid "Geneanet"
+msgstr ""
+
+#: ImportDNAMatch/ImportDNAMatch.py:524
+msgid "FTDNA"
+msgstr ""

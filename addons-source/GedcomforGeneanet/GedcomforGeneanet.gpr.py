@@ -31,8 +31,13 @@ register(EXPORT,
     name  = _("Export GEDCOM for Geneanet "),
     name_accell  = _("GEDCOM for Geneanet "),
     description =  _("Extensions to the common GEDCOM format for Geneanet transfert."),
+<<<<<<< HEAD
     version = '2.1.19',
     gramps_target_version = '5.1',
+=======
+    version = '2.1.14',
+    gramps_target_version = '5.2',
+>>>>>>> a64f97d49698b0e632e5a486446674f623b12c66
     status = STABLE, 
     fname = 'GedcomforGeneanet.py',
     export_function = 'export_data',

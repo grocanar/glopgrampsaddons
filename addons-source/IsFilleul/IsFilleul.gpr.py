@@ -26,10 +26,14 @@ register(RULE,
   id    = 'IsFilleul',
   name  = _("Matching filleul"),
   description = _("Matches People with relation Filleul"),
+<<<<<<< HEAD
   version = '0.0.11',
+=======
+  version = '0.0.12',
+>>>>>>> a64f97d49698b0e632e5a486446674f623b12c66
   authors = ["Eric Doutreleau"],
   authors_email = ["eric@doutreleau.fr"],
-  gramps_target_version = '5.1',
+  gramps_target_version = '5.2',
   status = STABLE,
   fname = "IsFilleul.py",
   ruleclass = 'IsFilleul',  # must be rule class name

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-28 21:06+0200\n"
+"POT-Creation-Date: 2023-10-16 23:20+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,44 +17,182 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../GedcomforGeneanet.gpr.py:31
+#: GedcomforGeneanet/GedcomforGeneanet.gpr.py:31
 msgid "Export GEDCOM for Geneanet "
 msgstr ""
 
-#: ../GedcomforGeneanet.gpr.py:32
+#: GedcomforGeneanet/GedcomforGeneanet.gpr.py:32
 msgid "GEDCOM for Geneanet "
 msgstr ""
 
-#: ../GedcomforGeneanet.gpr.py:33
+#: GedcomforGeneanet/GedcomforGeneanet.gpr.py:33
 msgid "Extensions to the common GEDCOM format for Geneanet transfert."
 msgstr ""
 
-#: ../GedcomforGeneanet.gpr.py:40
+#: GedcomforGeneanet/GedcomforGeneanet.gpr.py:40
 msgid "GEDCOM for Geneanet options"
 msgstr ""
 
-#: ../GedcomforGeneanet.py:128
+#: GedcomforGeneanet/GedcomforGeneanet.py:287
+#, python-brace-format
+msgid "{number_of} Person"
+msgid_plural "{number_of} People"
+msgstr[0] ""
+msgstr[1] ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:355
+msgid "Place name at the time"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:360
+msgid "Alternate name for place"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:832
+msgid "Source Filiation"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:841
+msgid "Title"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:843
+msgid "Author"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:845
+msgid "Publication Info"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:847
+msgid "Page"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:923
 msgid "Writing sources"
 msgstr ""
 
-#. Make options:
-#: ../GedcomforGeneanet.py:322
+#: GedcomforGeneanet/GedcomforGeneanet.py:1250
+msgid "Phone"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1252
+msgid "FAX"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1254
+msgid "EMAIL"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1256
+msgid "WWW"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1449
+msgid "Very High Quality Source"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1452
+msgid "High Quality Source"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1455
+msgid "Normal Quality Source"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1458
+msgid "Low Quality Source"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1461
+msgid "Very Low Quality Source"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1615
 msgid "Include witnesses"
 msgstr ""
 
-#: ../GedcomforGeneanet.py:323
+#: GedcomforGeneanet/GedcomforGeneanet.py:1616
 msgid "Include media"
 msgstr ""
 
-#: ../GedcomforGeneanet.py:324
+#: GedcomforGeneanet/GedcomforGeneanet.py:1617
+msgid "Relative path for media"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1618
 msgid "Include depot in sources"
 msgstr ""
 
-#: ../GedcomforGeneanet.py:358
+#: GedcomforGeneanet/GedcomforGeneanet.py:1619
+msgid "Role Display for Events"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1620
+msgid "Export Source Quality"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1621
+msgid "Create a zip of medias"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1622
+msgid "Geneanet name beautify"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1623
+msgid "Support for call name"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1624
+msgid "Implementation of anychar"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1625
+msgid "Export of attributes of citation"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1626
+msgid "Include Census information for people"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1627
+msgid "Title instead of url for links"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1628
+msgid "Include Parental Source as Notes"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1629
+msgid "Use aditionnal program"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1630
+msgid "Display alternative name for place"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1631
+msgid "Geneanet format place"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1632
+msgid "Display place name at the time"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1633
+msgid "Display Extended Title"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1634
+msgid "Create group from attribute"
+msgstr ""
+
+#: GedcomforGeneanet/GedcomforGeneanet.py:1758
 #, python-format
 msgid "Could not create %s"
 msgstr ""
 
-#: ../GedcomforGeneanet.py:361
+#: GedcomforGeneanet/GedcomforGeneanet.py:1761
 msgid "Export failed"
 msgstr ""

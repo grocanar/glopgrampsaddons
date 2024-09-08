@@ -26,10 +26,14 @@ register(RULE,
   id    = 'HasSeveralEvent',
   name  = _("HasSeveralUniqueEvent"),
   description = _("Matches people with several individual unique event"),
+<<<<<<< HEAD
   version = '0.0.6',
+=======
+  version = '0.0.7',
+>>>>>>> a64f97d49698b0e632e5a486446674f623b12c66
   authors = ["Eric Doutreleau"],
   authors_email = ["eric@doutreleau.fr"],
-  gramps_target_version = '5.1',
+  gramps_target_version = '5.2',
   status = STABLE,
   fname = "hasseveralevent.py",
   ruleclass = 'HasSeveralEvent',  # must be rule class name

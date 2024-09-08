@@ -14,21 +14,25 @@ msgstr ""
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: DateRegular/DateRegular.gpr.py:27 DateRegular/DateRegular.py:49
-msgid "Event with regular date"
+#: IsFilleul/IsFilleul.gpr.py:27
+msgid "Matching filleul"
 msgstr ""
 
-#: DateRegular/DateRegular.gpr.py:28
-msgid "Match Event with Regular Date"
+#: IsFilleul/IsFilleul.gpr.py:28
+msgid "Matches People with relation Filleul"
 msgstr ""
 
-#: DateRegular/DateRegular.py:50
-msgid "Match Event with regular date"
+#: IsFilleul/IsFilleul.py:52
+msgid "People match filleul "
 msgstr ""
 
-#: DateRegular/DateRegular.py:51
-msgid "Event filters"
+#: IsFilleul/IsFilleul.py:53
+msgid "Matches people filleul"
+msgstr ""
+
+#: IsFilleul/IsFilleul.py:54
+msgid "Person filters"
 msgstr ""
